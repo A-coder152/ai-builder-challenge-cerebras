@@ -30,9 +30,13 @@ const ReceivePage: React.FC = () => {
     setError(null);
 
     try {
-      await apiClient.post('/v1/scans/receive', {
-        ...formData,
-        scan_payload: formData.asset_tag,
+      await fetch('/api/scans/receive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          scan_payload: formData.asset_tag,
+        }),
       });
       router.push('/manager');
     } catch (err: any) {

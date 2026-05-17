@@ -19,11 +19,15 @@ const TransferPage: React.FC = () => {
     setError(null);
 
     try {
-      await apiClient.post('/v1/scans/transfer', {
-        asset_tag: formData.asset_tag,
-        to_custodian: formData.to_custodian,
-        user_id: 'tech-jane', // Assuming logged-in tech
-        scan_payload: formData.asset_tag,
+      await fetch('/api/scans/transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          asset_tag: formData.asset_tag,
+          to_custodian: formData.to_custodian,
+          user_id: 'tech-jane',
+          scan_payload: formData.asset_tag,
+        }),
       });
 
       router.push('/manager');

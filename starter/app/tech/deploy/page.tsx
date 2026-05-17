@@ -22,24 +22,20 @@ const DeployPage: React.FC = () => {
     setError(null);
 
     try {
-      // Call Deploy API
-      await apiClient.post('/v1/scans/deploy', {
-        asset_tag: formData.asset_tag,
-        location: { 
-            site: formData.site,
-            room: formData.room,
-            rack: formData.rack,
-            ru: formData.ru
-        },
-        user_id: 'tech-jane',
-        scan_payload: formData.asset_tag,
-      });
-
-      // Call Sync Handler
-      await apiClient.post('/api/sync-mocks', {
-        asset_tag: formData.asset_tag,
-        rack_location: `${formData.site}/${formData.room}/${formData.rack}/${formData.ru}`,
-        status: 'capitalized'
+      await fetch('/api/scans/deploy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          asset_tag: formData.asset_tag,
+          location: { 
+              site: formData.site,
+              room: formData.room,
+              rack: formData.rack,
+              ru: formData.ru
+          },
+          user_id: 'tech-jane',
+          scan_payload: formData.asset_tag,
+        }),
       });
 
       router.push('/manager');

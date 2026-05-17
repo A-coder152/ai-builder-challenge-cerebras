@@ -17,17 +17,15 @@ const StorePage: React.FC = () => {
     setError(null);
 
     try {
-      await apiClient.post('/v1/scans/store', {
-        asset_tag: assetTag,
-        location: { site: location }, // Assuming a simple string mapping for now
-        user_id: 'tech-jane',
-        scan_payload: assetTag,
-      });
-
-      // Sync with external mocks on storage (de-rack)
-      await apiClient.post('/api/sync-mocks', {
-        asset_tag: assetTag,
-        rack_location: null,
+      await fetch('/api/scans/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          asset_tag: assetTag,
+          location: { site: location },
+          user_id: 'tech-jane',
+          scan_payload: assetTag,
+        }),
       });
 
       router.push('/manager');
