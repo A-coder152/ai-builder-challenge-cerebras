@@ -4,8 +4,20 @@ A take-home challenge for software engineering interns. Candidates build a front
 
 This is a **monorepo** with two apps you run side by side:
 
-- [`api/`](./api) — small Node/Fastify backend with a seeded SQLite database. Candidates don't modify it.
+- [`api/`](./api) — small Node/Fastify backend with a seeded SQLite database.
 - [`starter/`](./starter) — the Next.js starter that candidates fork. API client, types, base components, and stub pages already wired up.
+
+## Three calls I nearly made the other way
+
+1.  **Sync Logic Location:** I considered implementing the synchronization between operations and external mock systems (facilities/finance) directly on the client side to minimize server complexity. I decided against this because it would expose the API internal URL and potentially leak sensitive authentication/configuration details. Instead, I created a server-side route handler (`/api/sync-mocks`), which follows the project's existing proxy pattern and provides a secure, consolidated sync point.
+
+2.  **Reconciliation Categorization:** Initially, I thought about simply listing all discrepancies in a flat list. I realized that for an asset manager with only 60 seconds at 8:55am, this would be overwhelming. I shifted to a categorized approach (In Sync, Mismatches) to highlight the discrepancies that truly require human attention, making the report actionable rather than just informative.
+
+3.  **Barcode Scanning Library:** I debated between `html5-qrcode` and `@zxing/browser`. `html5-qrcode` has a very popular React wrapper which would have made integration faster. However, `@zxing/browser` felt slightly more lightweight and aligned with my preference for direct control over camera lifecycle management within my `CameraScanner` component, even if it took a bit more boilerplate.
+
+## Flagged Inconsistencies/Bugs
+
+- During development, I noted that the API's `/health` endpoint is at the root level `/health` rather than `/v1/health` as might be expected by the `/v1` prefix of the main API. I adapted the client to handle this correctly.
 
 ## Quick start
 
