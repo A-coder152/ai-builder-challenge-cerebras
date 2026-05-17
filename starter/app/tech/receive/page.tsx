@@ -36,7 +36,11 @@ const ReceivePage: React.FC = () => {
       });
       router.push('/manager');
     } catch (err: any) {
-      setError(err.message || 'Failed to receive asset');
+      if (err.code === 'and_match_failed') {
+        setError(`Conflict! Serial mismatch for ${formData.asset_tag}. Existing serial: ${err.details.existing_serial}`);
+      } else {
+        setError(err.message || 'Failed to receive asset');
+      }
     }
   };
 

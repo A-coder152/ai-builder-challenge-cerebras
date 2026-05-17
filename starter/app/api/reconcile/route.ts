@@ -22,13 +22,14 @@ export async function GET() {
       ghostExternal: [],
     };
 
-    // Simple reconciliation logic (Placeholder for robust categorization)
     assets.forEach((asset: any) => {
         const facMatch = facilities.find((f: any) => f.tagged_id === asset.asset_tag);
         const finMatch = finance.find((f: any) => f.tag === asset.asset_tag);
 
         if (asset.state === 'in_service' && !facMatch) {
             report.facilitiesMismatch.push({ asset_tag: asset.asset_tag, note: 'Expected in facilities' });
+        } else if (asset.state === 'in_service' && finMatch?.status !== 'capitalized') {
+            report.financeMismatch.push({ asset_tag: asset.asset_tag, note: 'Not capitalized in finance' });
         } else {
             report.inSync.push({ asset_tag: asset.asset_tag });
         }
