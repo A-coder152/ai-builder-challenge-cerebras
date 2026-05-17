@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CameraScanner from '@/components/CameraScanner';
-import { apiClient } from '@/lib/api-client';
+import { ScanWorkflowShell } from '@/components/scan/ScanWorkflowShell';
+import { ScanField } from '@/components/scan/ScanField';
 
 const DeployPage: React.FC = () => {
   const router = useRouter();
@@ -15,79 +16,51 @@ const DeployPage: React.FC = () => {
     ru: '',
   });
   const [error, setError] = useState<string | null>(null);
-  const [scanningField, setScanningField] = useState<string | null>(null);
+  const [scanningField, setScanningField] = useState<keyof typeof formData | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
     try {
       await fetch('/api/scans/deploy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           asset_tag: formData.asset_tag,
-          location: { 
-              site: formData.site,
-              room: formData.room,
-              rack: formData.rack,
-              ru: formData.ru
-          },
+          location: { site: formData.site, room: formData.room, rack: formData.rack, ru: formData.ru },
           user_id: 'tech-jane',
           scan_payload: formData.asset_tag,
         }),
       });
-
       router.push('/manager');
     } catch (err: any) {
       setError(err.message || 'Failed to deploy asset');
     }
   };
 
-  const handleScan = (value: string) => {
-    if (scanningField) {
-      setFormData(prev => ({ ...prev, [scanningField]: value }));
-    }
-    setScanningField(null);
-  };
-
-  const renderField = (name: keyof typeof formData, label: string) => (
-    <div className="mb-4">
-      <label className="block mb-1">{label}</label>
-      <div className="flex gap-2">
-        <input 
-          type="text" 
-          value={formData[name]}
-          onChange={(e) => setFormData({...formData, [name]: e.target.value})}
-          className="flex-grow border p-2 rounded"
-          required
+  if (scanningField) {
+    return (
+      <ScanWorkflowShell title="Scan Barcode">
+        <CameraScanner 
+          onScan={(val) => { setFormData(p => ({ ...p, [scanningField]: val })); setScanningField(null); }} 
+          onError={(err) => setError(err.message)} 
         />
-        <button type="button" onClick={() => setScanningField(name)} className="bg-gray-200 p-2 rounded">Scan</button>
-      </div>
-    </div>
-  );
+        <button onClick={() => setScanningField(null)} className="mt-4 w-full text-gray-500">Cancel</button>
+      </ScanWorkflowShell>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4 max-w-lg">
-      <h1 className="text-2xl font-bold mb-4">Deploy Asset</h1>
-      {error && <div className="bg-red-100 text-red-700 p-2 mb-4 rounded">{error}</div>}
-
-      {scanningField ? (
-        <div className="mb-4">
-          <CameraScanner onScan={handleScan} onError={(err) => setError(err.message)} />
-          <button onClick={() => setScanningField(null)} className="mt-2 text-sm text-gray-500">Cancel</button>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {renderField('asset_tag', 'Asset Tag')}
-          {renderField('site', 'Site')}
-          {renderField('room', 'Room')}
-          {renderField('rack', 'Rack')}
-          {renderField('ru', 'RU')}
-          <button type="submit" className="w-full bg-green-500 text-white p-2 rounded">Submit</button>
-        </form>
-      )}
-    </div>
+    <ScanWorkflowShell title="Deploy Asset" error={error}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <ScanField label="Asset Tag" value={formData.asset_tag} onChange={(v) => setFormData(p => ({...p, asset_tag: v}))} onScan={() => setScanningField('asset_tag')} autoFocus />
+        <ScanField label="Site" value={formData.site} onChange={(v) => setFormData(p => ({...p, site: v}))} onScan={() => setScanningField('site')} />
+        <ScanField label="Room" value={formData.room} onChange={(v) => setFormData(p => ({...p, room: v}))} onScan={() => setScanningField('room')} />
+        <ScanField label="Rack" value={formData.rack} onChange={(v) => setFormData(p => ({...p, rack: v}))} onScan={() => setScanningField('rack')} />
+        <ScanField label="RU" value={formData.ru} onChange={(v) => setFormData(p => ({...p, ru: v}))} onScan={() => setScanningField('ru')} />
+        <button type="submit" className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold">Deploy Asset</button>
+      </form>
+    </ScanWorkflowShell>
   );
 };
 

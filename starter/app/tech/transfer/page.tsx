@@ -3,21 +3,18 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CameraScanner from '@/components/CameraScanner';
-import { apiClient } from '@/lib/api-client';
+import { ScanWorkflowShell } from '@/components/scan/ScanWorkflowShell';
+import { ScanField } from '@/components/scan/ScanField';
 
 const TransferPage: React.FC = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    asset_tag: '',
-    to_custodian: '',
-  });
+  const [formData, setFormData] = useState({ asset_tag: '', to_custodian: '' });
   const [error, setError] = useState<string | null>(null);
-  const [scanningField, setScanningField] = useState<string | null>(null);
+  const [scanningField, setScanningField] = useState<keyof typeof formData | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
     try {
       await fetch('/api/scans/transfer', {
         method: 'POST',
@@ -29,54 +26,32 @@ const TransferPage: React.FC = () => {
           scan_payload: formData.asset_tag,
         }),
       });
-
       router.push('/manager');
     } catch (err: any) {
       setError(err.message || 'Failed to transfer asset');
     }
   };
 
-  const handleScan = (value: string) => {
-    if (scanningField) {
-      setFormData(prev => ({ ...prev, [scanningField]: value }));
-    }
-    setScanningField(null);
-  };
-
-  const renderField = (name: keyof typeof formData, label: string) => (
-    <div className="mb-4">
-      <label className="block mb-1">{label}</label>
-      <div className="flex gap-2">
-        <input 
-          type="text" 
-          value={formData[name]}
-          onChange={(e) => setFormData({...formData, [name]: e.target.value})}
-          className="flex-grow border p-2 rounded"
-          required
+  if (scanningField) {
+    return (
+      <ScanWorkflowShell title="Scan Barcode">
+        <CameraScanner 
+          onScan={(val) => { setFormData(p => ({ ...p, [scanningField]: val })); setScanningField(null); }} 
+          onError={(err) => setError(err.message)} 
         />
-        <button type="button" onClick={() => setScanningField(name)} className="bg-gray-200 p-2 rounded">Scan</button>
-      </div>
-    </div>
-  );
+        <button onClick={() => setScanningField(null)} className="mt-4 w-full text-gray-500">Cancel</button>
+      </ScanWorkflowShell>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4 max-w-lg">
-      <h1 className="text-2xl font-bold mb-4">Transfer Custody</h1>
-      {error && <div className="bg-red-100 text-red-700 p-2 mb-4 rounded">{error}</div>}
-
-      {scanningField ? (
-        <div className="mb-4">
-          <CameraScanner onScan={handleScan} onError={(err) => setError(err.message)} />
-          <button onClick={() => setScanningField(null)} className="mt-2 text-sm text-gray-500">Cancel</button>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {renderField('asset_tag', 'Asset Tag')}
-          {renderField('to_custodian', 'Receiving User Badge')}
-          <button type="submit" className="w-full bg-green-500 text-white p-2 rounded">Submit</button>
-        </form>
-      )}
-    </div>
+    <ScanWorkflowShell title="Transfer Custody" error={error}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <ScanField label="Asset Tag" value={formData.asset_tag} onChange={(v) => setFormData(p => ({...p, asset_tag: v}))} onScan={() => setScanningField('asset_tag')} autoFocus />
+        <ScanField label="Receiving User Badge" value={formData.to_custodian} onChange={(v) => setFormData(p => ({...p, to_custodian: v}))} onScan={() => setScanningField('to_custodian')} />
+        <button type="submit" className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold">Transfer Asset</button>
+      </form>
+    </ScanWorkflowShell>
   );
 };
 
