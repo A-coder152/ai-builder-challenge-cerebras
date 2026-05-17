@@ -4,73 +4,64 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 
-interface Asset {
-  asset_tag: string;
-  serial: string;
-  model: string;
-  manufacturer: string;
-  state: string;
-  custodian: string;
-  location: { site: string; room: string; row: string; rack: string; ru: string };
-}
-
-interface Event {
-  id: string;
-  event_type: string;
-  user_id: string;
-  timestamp: string;
-}
-
 const AssetDetailPage: React.FC = () => {
   const { tag } = useParams();
-  const [asset, setAsset] = useState<Asset | null>(null);
-  const [events, setEvents] = useState<Event[]>([]);
+  const [data, setData] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const assetData = await apiClient.get(`/v1/assets/${tag}`);
-        setAsset(assetData);
-        const eventData = await apiClient.get(`/v1/assets/${tag}/events`);
-        setEvents(eventData);
-      } catch (error) {
-        console.error('Failed to fetch asset data', error);
-      }
+      const [asset, events, facilities, finance] = await Promise.all([
+        apiClient.get(`/v1/assets/${tag}`),
+        apiClient.get(`/v1/assets/${tag}/events`),
+        apiClient.get('/v1/mock/facilities/spaces').then(r => r.find((f: any) => f.tagged_id === tag)),
+        apiClient.get('/v1/mock/finance/equipment').then(r => r.find((f: any) => f.tag === tag))
+      ]);
+      setData({ asset, events, facilities, finance });
     };
     fetchData();
   }, [tag]);
 
-  if (!asset) return <p>Loading asset details...</p>;
+  if (!data) return <div className="text-center py-20 text-gray-500">Loading forensic data...</div>;
+
+  const { asset, events, facilities, finance } = data;
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Asset: {asset.asset_tag}</h1>
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div><strong>Model:</strong> {asset.model}</div>
-        <div><strong>State:</strong> {asset.state}</div>
-        <div><strong>Custodian:</strong> {asset.custodian}</div>
-        <div><strong>Location:</strong> {asset.location.site}</div>
+    <div className="container mx-auto p-6 max-w-5xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-extrabold text-gray-900">{asset.asset_tag} · {asset.model}</h1>
+        <p className="text-gray-600 uppercase tracking-wide text-sm font-bold mt-1">
+            {asset.state.replace('_', ' ')} • {asset.location.site}
+        </p>
       </div>
       
-      <h2 className="text-xl font-bold mb-2">Event Log</h2>
-      <table className="w-full border-collapse border">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2">Type</th>
-            <th className="border p-2">User</th>
-            <th className="border p-2">Timestamp</th>
-          </tr>
-        </thead>
-        <tbody>
-          {events.map((event) => (
-            <tr key={event.id}>
-              <td className="border p-2">{event.event_type}</td>
-              <td className="border p-2">{event.user_id}</td>
-              <td className="border p-2">{new Date(event.timestamp).toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+            <h3 className="font-bold text-gray-500 mb-3 text-xs uppercase">Operations</h3>
+            <p className="font-mono text-sm">{asset.location.site} / {asset.location.room || '-'}</p>
+            <p className="text-sm">Custodian: {asset.custodian}</p>
+        </div>
+        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+            <h3 className="font-bold text-gray-500 mb-3 text-xs uppercase">Facilities</h3>
+            <p className="font-mono text-sm">{facilities?.rack_location || 'Not racked'}</p>
+        </div>
+        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+            <h3 className="font-bold text-gray-500 mb-3 text-xs uppercase">Finance</h3>
+            <p className="font-mono text-sm">{finance?.status || 'Unknown'}</p>
+        </div>
+      </div>
+      
+      <h2 className="text-xl font-bold mb-6">Event Timeline</h2>
+      <div className="space-y-4">
+        {events.map((event: any) => (
+          <div key={event.id} className="flex gap-4 p-4 bg-white border border-gray-100 rounded-lg">
+            <div className="text-xs text-gray-400 w-32 shrink-0">{new Date(event.timestamp).toLocaleString()}</div>
+            <div>
+                <span className="font-semibold text-indigo-700 capitalize">{event.event_type.replace('_', ' ')}</span>
+                <p className="text-sm text-gray-600">by {event.user_id}</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
