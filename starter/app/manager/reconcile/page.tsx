@@ -14,21 +14,44 @@ const ReconcilePage: React.FC = () => {
     fetchReport();
   }, []);
 
-  if (!report) return <p>Generating reconciliation report...</p>;
+  if (!report) return <div className="text-center py-20 text-gray-500">Running advanced diagnostic...</div>;
+
+  const sections = [
+    { title: 'Facilities Mismatch', data: report.facilitiesMismatch, color: 'text-amber-700', bg: 'bg-amber-50' },
+    { title: 'Finance Mismatch', data: report.financeMismatch, color: 'text-red-700', bg: 'bg-red-50' },
+  ];
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Reconciliation Report</h1>
-      <div className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold">Facilities Mismatch</h2>
-          <ul>
-            {report.facilitiesMismatch.map((item: any) => (
-              <li key={item.asset_tag}>{item.asset_tag}: {item.note}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
+    <div className="container mx-auto p-6 max-w-4xl">
+      <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Reconciliation Report</h1>
+      <p className="text-gray-600 mb-8">Summary of discrepancies identified across operational, facilities, and finance systems.</p>
+
+      {sections.map((section, idx) => (
+        <section key={idx} className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-800">{section.title}</h2>
+            <span className={`px-3 py-1 rounded-full text-xs font-bold ${section.bg} ${section.color}`}>
+              {section.data.length} issues
+            </span>
+          </div>
+          {section.data.length === 0 ? (
+            <div className="bg-gray-50 p-4 rounded-lg text-gray-500 italic">No issues found.</div>
+          ) : (
+            <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+              <table className="w-full text-left">
+                <tbody className="divide-y divide-gray-100">
+                  {section.data.map((item: any) => (
+                    <tr key={item.asset_tag} className="hover:bg-gray-50">
+                      <td className="p-4 font-mono font-medium text-indigo-600">{item.asset_tag}</td>
+                      <td className="p-4 text-gray-700">{item.note}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      ))}
     </div>
   );
 };
