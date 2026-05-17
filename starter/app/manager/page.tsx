@@ -4,6 +4,15 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api-client';
 
+interface Asset {
+  asset_tag: string;
+  serial: string;
+  model: string;
+  manufacturer: string;
+  state: string;
+  custodian: string;
+}
+
 const ManagerDashboard: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [reconcileSummary, setReconcileSummary] = useState<any>(null);

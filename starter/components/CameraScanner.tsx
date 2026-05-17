@@ -17,8 +17,9 @@ const CameraScanner: React.FC<CameraScannerProps> = ({ onScan, onError }) => {
     const startScanner = async () => {
       try {
         const videoInputDevices = await reader.current.listVideoInputDevices();
-        if (videoInputDevices.length > 0) {
-          const selectedDeviceId = videoInputDevices[0].deviceId;
+        const firstDevice = videoInputDevices?.[0];
+        if (firstDevice) {
+          const selectedDeviceId = firstDevice.deviceId;
           await reader.current.decodeFromVideoDevice(
             selectedDeviceId,
             videoRef.current!,

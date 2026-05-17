@@ -47,7 +47,9 @@ const BarcodeGeneratorPage: React.FC = () => {
         {barcodeData.map((item, index) => (
           <div key={index} className="border p-4 rounded-lg shadow-sm">
             <h2 className="text-lg font-semibold mb-2">{item.label}</h2>
-            <svg ref={(el) => (barcodeRefs.current[index] = el)}></svg>
+            <svg ref={(el: SVGSVGElement | null) => {
+              if (el) barcodeRefs.current[index] = el;
+            }}></svg>
             <p className="text-sm font-mono mt-2">{item.value}</p>
           </div>
         ))}
