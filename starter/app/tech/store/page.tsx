@@ -23,6 +23,13 @@ const StorePage: React.FC = () => {
         user_id: 'tech-jane',
         scan_payload: assetTag,
       });
+
+      // Sync with external mocks on storage (de-rack)
+      await apiClient.post('/api/sync-mocks', {
+        asset_tag: assetTag,
+        rack_location: null,
+      });
+
       router.push('/manager');
     } catch (err: any) {
       setError(err.message || 'Failed to store asset');

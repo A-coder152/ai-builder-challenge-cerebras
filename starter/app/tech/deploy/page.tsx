@@ -35,10 +35,10 @@ const DeployPage: React.FC = () => {
         scan_payload: formData.asset_tag,
       });
 
-      // Call Sync Handler (Phase 4 requirement)
+      // Call Sync Handler
       await apiClient.post('/api/sync-mocks', {
         asset_tag: formData.asset_tag,
-        location: `${formData.site}/${formData.room}/${formData.rack}/${formData.ru}`,
+        rack_location: `${formData.site}/${formData.room}/${formData.rack}/${formData.ru}`,
         status: 'capitalized'
       });
 
