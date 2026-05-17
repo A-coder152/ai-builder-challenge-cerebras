@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { apiClient } from '@/lib/api-client';
+import { api } from '@/lib/api-client';
 
 const AssetDetailPage: React.FC = () => {
   const { tag } = useParams();
@@ -11,10 +11,10 @@ const AssetDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       const [asset, events, facilities, finance] = await Promise.all([
-        apiClient.get(`/v1/assets/${tag}`),
-        apiClient.get(`/v1/assets/${tag}/events`),
-        apiClient.get('/v1/mock/facilities/spaces').then(r => r.find((f: any) => f.tagged_id === tag)),
-        apiClient.get('/v1/mock/finance/equipment').then(r => r.find((f: any) => f.tag === tag))
+        api.assets.get(tag as string),
+        api.assets.history(tag as string),
+        api.mock.facilities().then(r => r.find((f: any) => f.tagged_id === tag)),
+        api.mock.finance().then(r => r.find((f: any) => f.tag === tag))
       ]);
       setData({ asset, events, facilities, finance });
     };

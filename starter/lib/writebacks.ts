@@ -4,7 +4,7 @@ export const writebacks = {
   deploy: async (assetTag: string, site: string, room: string, rack: string, ru: string) => {
     await api.mock.updateFacilities({
       tagged_id: assetTag,
-      rack_location: `${site}/${room}/${rack}/${rack}/${ru}`, // Using the full path as required
+      rack_location: `${site}/${room}/${rack}/${ru}`, // Corrected: removed duplicated rack
     });
     await api.mock.updateFinance({
       tag: assetTag,

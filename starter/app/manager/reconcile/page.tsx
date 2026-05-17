@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { apiClient } from '@/lib/api-client';
+import { api } from '@/lib/api-client';
 
 const ReconcilePage: React.FC = () => {
   const [report, setReport] = useState<any>(null);
 
   useEffect(() => {
     const fetchReport = async () => {
-      const data = await apiClient.get('/api/reconcile');
+      const response = await fetch('/api/reconcile');
+      const data = await response.json();
       setReport(data);
     };
     fetchReport();
@@ -17,8 +18,9 @@ const ReconcilePage: React.FC = () => {
   if (!report) return <div className="text-center py-20 text-gray-500">Running advanced diagnostic...</div>;
 
   const sections = [
-    { title: 'Facilities Mismatch', data: report.facilitiesMismatch, color: 'text-amber-700', bg: 'bg-amber-50' },
-    { title: 'Finance Mismatch', data: report.financeMismatch, color: 'text-red-700', bg: 'bg-red-50' },
+    { title: 'Critical Action Needed', data: report.groups.actionNeeded, color: 'text-red-700', bg: 'bg-red-50' },
+    { title: 'Review Required', data: report.groups.review, color: 'text-amber-700', bg: 'bg-amber-50' },
+    { title: 'Expected Drift', data: report.groups.expected, color: 'text-blue-700', bg: 'bg-blue-50' },
   ];
 
   return (

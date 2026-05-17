@@ -1,17 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { apiClient } from '@/lib/api-client';
-
-interface Asset {
-  asset_tag: string;
-  serial: string;
-  model: string;
-  manufacturer: string;
-  state: string;
-  custodian: string;
-}
+import { api } from '@/lib/api-client';
 
 const ManagerDashboard: React.FC = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -22,7 +13,7 @@ const ManagerDashboard: React.FC = () => {
     const fetchData = async () => {
       try {
         const [assetsData, reconcileData] = await Promise.all([
-          apiClient.get('/v1/assets'),
+          api.assets.list(),
           fetch('/api/reconcile').then(r => r.json())
         ]);
         setAssets(assetsData);
