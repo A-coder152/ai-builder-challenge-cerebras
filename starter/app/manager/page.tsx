@@ -49,19 +49,19 @@ const ManagerDashboard: React.FC = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <div className="bg-red-50 p-4 rounded-xl border border-red-100">
-              <div className="text-2xl font-bold text-red-700">{reconcileSummary.actionNeeded}</div>
+              <div className="text-2xl font-bold text-red-700"> {reconcileSummary?.actionNeeded || 0}</div>
               <div className="text-sm font-semibold text-red-600">Critical Action Needed</div>
             </div>
             <div className="bg-amber-50 p-4 rounded-xl border border-amber-100">
-              <div className="text-2xl font-bold text-amber-700">{reconcileSummary.review}</div>
+              <div className="text-2xl font-bold text-amber-700"> {reconcileSummary?.review || 0}</div>
               <div className="text-sm font-semibold text-amber-600">Review Required</div>
             </div>
             <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-              <div className="text-2xl font-bold text-blue-700">{reconcileSummary.expected}</div>
+              <div className="text-2xl font-bold text-blue-700"> {reconcileSummary?.expected || 0}</div>
               <div className="text-sm font-semibold text-blue-600">Expected Drift</div>
             </div>
             <div className="bg-green-50 p-4 rounded-xl border border-green-100">
-              <div className="text-2xl font-bold text-green-700">{reconcileSummary.clean}</div>
+              <div className="text-2xl font-bold text-green-700"> {reconcileSummary?.clean || 0}</div>
               <div className="text-sm font-semibold text-green-600">Clean Assets</div>
             </div>
           </div>

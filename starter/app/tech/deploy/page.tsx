@@ -15,6 +15,8 @@ const DeployPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [scanningField, setScanningField] = useState<keyof typeof formData | null>(null);
 
+  const [result, setResult] = useState<any>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -30,12 +32,26 @@ const DeployPage: React.FC = () => {
         }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error?.message || 'Failed to deploy asset');
-      router.push('/manager');
+      if (!response.ok) throw new Error(data.error?.message || 'Deploy failed. Check the asset tag and location, then try again.');
+      setResult(data);
     } catch (err: any) {
       setError(err.message);
     }
   };
+
+  if (result) {
+    return (
+      <ScanWorkflowShell title="Success">
+        <div className="text-green-700 font-bold mb-4">Deployed {result.asset.asset_tag}</div>
+        <div className="text-sm text-gray-600 mb-6">
+            Facilities updated: {result.sync.facilities.rack_location}
+            <br />
+            Finance updated: {result.sync.finance.status}
+        </div>
+        <button onClick={() => { setResult(null); setFormData({ asset_tag: '', site: '', room: '', row: '', rack: '', ru: '' }); }} className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold">Scan another deploy</button>
+      </ScanWorkflowShell>
+    );
+  }
 
   if (scanningField) {
     return (

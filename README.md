@@ -1,57 +1,57 @@
-# Asset tracking challenge
+# Asset Tracking Challenge — A-coder152
 
-A take-home challenge for software engineering interns. Candidates build a frontend on top of a small local backend that simulates the operational asset tracking system of a multi-site research lab.
+## Deployed app
+[Insert URL here]
 
-This is a **monorepo** with two apps you run side by side:
+## Reviewer quick path
+1. Open `/dev/barcodes` and print the test labels.
+2. Use `/tech/deploy` with a stored asset and a rack barcode (e.g., `rack:SFO/R201/A/R4/RU12`).
+3. Confirm the success state shows Operations, Facilities, and Finance sync statuses.
+4. Open `/manager/reconcile` and filter for "Action needed."
+5. Use `/tech/store` on an in-service asset and confirm Facilities rack record is cleared.
+6. Open `/manager/assets/[tag]` and inspect the unified system snapshot and event timeline.
 
-- [`api/`](./api) — small Node/Fastify backend with a seeded SQLite database.
-- [`starter/`](./starter) — the Next.js starter that candidates fork. API client, types, base components, and stub pages already wired up.
+## What was built
+A high-trust asset management system that reconciles Operations (source of truth), Facilities (racking), and Finance (capitalization) data. It features optimized field-worker workflows and an exception-first management dashboard.
+
+## Architecture
+- **Next.js Route Handlers**: `/api/scans/*` proxies prevent client-side token leakage.
+- **Orchestration**: Logic is scan-specific (Deploy writes Facilities/Finance; Store de-racks only when appropriate).
+- **Forensics**: A server-side union join across all three systems powers the reconciliation report and asset detail views.
+
+## Tech scan workflows
+Each tech workflow (receive, store, deploy, transfer) is built on a reusable `ScanWorkflowShell` that supports keyboard/USB scanners (via `ScanField`) and native camera-based scanning (via `CameraScanner`).
+
+## Facilities/Finance writebacks
+Writebacks are orchestrated server-side within the specific scan route handlers. Facilities and Finance data are updated consistently and idempotent state changes are enforced.
+
+## Three-way reconciliation
+A server-side union join compares Operations, Facilities, and Finance data. Discrepancies are categorized by severity and actionability to help managers triage 1,000+ assets in minutes.
+
+## Manager dashboard/detail design
+- **Dashboard**: Exception-first "morning triage" view with summary cards for critical action items.
+- **Forensic View**: A "Truth Panel" displays side-by-side snapshots from Operations, Facilities, and Finance, paired with a chronological event timeline.
+
+## Barcode test harness
+The `/dev/barcodes` page generates scannable labels for all test cases, including happy-path assets, drift cases, and system orphans, with print-ready CSS.
+
+## Tests
+- `starter/test/reconcile.test.ts`: Tests reconciliation join and categorization logic.
+- `starter/test/writebacks.test.ts`: Tests server-side writeback orchestration for different scan types.
+- `starter/test/location.test.ts`: Validates rack location parsing rules.
 
 ## Three calls I nearly made the other way
+1. **Server Orchestration vs. Generic Sync**: I initially considered a generic `/api/sync-mocks` endpoint. I replaced it with scan-specific handlers because each scan has distinct downstream writeback rules (e.g., deploy writes both, store only de-racks for in-service assets).
+2. **Exception-First Dashboard**: I prioritized exceptions and recent movements because a manager needs to know "what needs action?" in seconds, not sort through a 1,000-asset list.
+3. **Scan UX**: I kept focused inputs as the default to support USB/Bluetooth scanners, while adding camera scanning as a native secondary path for mobile workflows.
 
-1.  **Sync Logic Location:** I considered implementing the synchronization between operations and external mock systems (facilities/finance) directly on the client side to minimize server complexity. I decided against this because it would expose the API internal URL and potentially leak sensitive authentication/configuration details. Instead, I created a server-side route handler (`/api/sync-mocks`), which follows the project's existing proxy pattern and provides a secure, consolidated sync point.
+## Things I intentionally did not build
+- **Full Auth**: I utilized the starter's role switcher as the user context to keep the focus on domain logic and reconciliation.
+- **Client-Side Filtering**: I deferred full pagination/filtering to the API layer where possible for performance, keeping client-side filtering lightweight.
 
-2.  **Reconciliation Categorization:** Initially, I thought about simply listing all discrepancies in a flat list. I realized that for an asset manager with only 60 seconds at 8:55am, this would be overwhelming. I shifted to a categorized approach (In Sync, Mismatches) to highlight the discrepancies that truly require human attention, making the report actionable rather than just informative.
+## Known limitations
+- The mock Facilities/Finance systems do not support full transactional integrity (they are mock APIs).
+- Camera scanning relies on browser permissions and camera availability, with manual entry as the required fallback.
 
-3.  **Barcode Scanning Library:** I debated between `html5-qrcode` and `@zxing/browser`. `html5-qrcode` has a very popular React wrapper which would have made integration faster. However, `@zxing/browser` felt slightly more lightweight and aligned with my preference for direct control over camera lifecycle management within my `CameraScanner` component, even if it took a bit more boilerplate.
-
-## Flagged Inconsistencies/Bugs
-
-- During development, I noted that the API's `/health` endpoint is at the root level `/health` rather than `/v1/health` as might be expected by the `/v1` prefix of the main API. I adapted the client to handle this correctly.
-
-## Quick start
-
-```bash
-pnpm install
-
-# Runs the API on :8080 and the starter on :3000
-pnpm dev
-```
-
-Open http://localhost:3000.
-
-The starter reads `API_BASE_URL` and `API_TOKEN` from `starter/.env`. Copy `starter/.env.example` to `starter/.env` if you don't have one. Both are server-side only — the browser hits a proxy at `/api/upstream` that adds the token, so it never reaches the client.
-
-## What's in here
-
-| Document | For |
-|---|---|
-| [`docs/CHALLENGE.md`](./docs/CHALLENGE.md) | The candidate-facing brief |
-| [`docs/CONTEXT.md`](./docs/CONTEXT.md) | Background on the kind of system this is and why each piece exists. Optional. |
-| [`api/README.md`](./api/README.md) | How to run and test the API |
-| [`starter/README.md`](./starter/README.md) | How to run the starter |
-| [`starter/docs/api-reference.md`](./starter/docs/api-reference.md) | The API contract |
-| [`starter/docs/tips.md`](./starter/docs/tips.md) | Notes for candidates |
-| [`starter/docs/happy-path.md`](./starter/docs/happy-path.md) | 10-step smoke test for candidates |
-
-## Testing
-
-```bash
-pnpm test          # all packages
-pnpm --filter @asset-tracking/api test
-pnpm --filter @asset-tracking/starter test
-```
-
-## License
-
-MIT. See [LICENSE](./LICENSE).
+## Pushback / confusing brief notes
+- The brief asks for three scan endpoints but also explicitly requires `/tech/transfer`, which necessitated adding a fourth route.
