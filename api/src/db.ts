@@ -133,7 +133,8 @@ function seedDatabase(db: Database.Database): void {
       for (const via of path) {
         const nextState = findTransition(currentState, via);
         if (!nextState) break;
-        const eventLoc = via === "store" || via === "deploy" ? asset.location : currentLoc;
+        const eventLoc =
+          via === "store" || via === "deploy" ? asset.location : currentLoc;
         insertEvent.run({
           id: ulid(),
           asset_tag: asset.asset_tag,
@@ -256,7 +257,9 @@ function rowToEvent(row: EventRow): Event {
     event_type: row.event_type as Event["event_type"],
     from_state: row.from_state as Event["from_state"],
     to_state: row.to_state as Event["to_state"],
-    from_location: row.from_location_json ? JSON.parse(row.from_location_json) : null,
+    from_location: row.from_location_json
+      ? JSON.parse(row.from_location_json)
+      : null,
     to_location: JSON.parse(row.to_location_json),
     user_id: row.user_id,
     scan_payload: row.scan_payload,
@@ -290,23 +293,22 @@ export function listAssets(
 }
 
 export function getAsset(db: Database.Database, tag: string): Asset | null {
-  const row = db.prepare("SELECT * FROM assets WHERE asset_tag = ?").get(tag) as
-    | AssetRow
-    | undefined;
+  const row = db
+    .prepare("SELECT * FROM assets WHERE asset_tag = ?")
+    .get(tag) as AssetRow | undefined;
   return row ? rowToAsset(row) : null;
 }
 
 export function listEvents(db: Database.Database, tag: string): Event[] {
   const rows = db
-    .prepare("SELECT * FROM events WHERE asset_tag = ? ORDER BY timestamp DESC, id DESC")
+    .prepare(
+      "SELECT * FROM events WHERE asset_tag = ? ORDER BY timestamp DESC, id DESC",
+    )
     .all(tag) as EventRow[];
   return rows.map(rowToEvent);
 }
 
-export function insertAsset(
-  db: Database.Database,
-  asset: Asset,
-): void {
+export function insertAsset(db: Database.Database, asset: Asset): void {
   db.prepare(
     `INSERT INTO assets (asset_tag, serial, model, manufacturer, asset_class, state, location_json, custodian, parent_asset_tag, procurement_note, created_at, updated_at)
      VALUES (@asset_tag, @serial, @model, @manufacturer, @asset_class, @state, @location_json, @custodian, @parent_asset_tag, @procurement_note, @created_at, @updated_at)`,
@@ -329,7 +331,12 @@ export function insertAsset(
 export function updateAsset(
   db: Database.Database,
   tag: string,
-  updates: { state: AssetState; location: Location; custodian: string; updated_at: string },
+  updates: {
+    state: AssetState;
+    location: Location;
+    custodian: string;
+    updated_at: string;
+  },
 ): void {
   db.prepare(
     `UPDATE assets SET state = @state, location_json = @location_json, custodian = @custodian, updated_at = @updated_at
@@ -353,7 +360,9 @@ export function insertEvent(db: Database.Database, event: Event): void {
     event_type: event.event_type,
     from_state: event.from_state,
     to_state: event.to_state,
-    from_location_json: event.from_location ? JSON.stringify(event.from_location) : null,
+    from_location_json: event.from_location
+      ? JSON.stringify(event.from_location)
+      : null,
     to_location_json: JSON.stringify(event.to_location),
     user_id: event.user_id,
     scan_payload: event.scan_payload,

@@ -56,10 +56,10 @@ node dist/index.js
 
 ## Environment
 
-| Variable | Default | Notes |
-|---|---|---|
-| `PORT` | `8080` | |
-| `HOST` | `0.0.0.0` | |
-| `API_DATA_DIR` | `./data` | Where the SQLite file lives. |
-| `API_DB_FILE` | `asset-tracking.db` | SQLite filename. |
-| `LOG_LEVEL` | `info` | Standard pino levels. |
+| Variable       | Default             | Notes                        |
+| -------------- | ------------------- | ---------------------------- |
+| `PORT`         | `8080`              |                              |
+| `HOST`         | `0.0.0.0`           |                              |
+| `API_DATA_DIR` | `./data`            | Where the SQLite file lives. |
+| `API_DB_FILE`  | `asset-tracking.db` | SQLite filename.             |
+| `LOG_LEVEL`    | `info`              | Standard pino levels.        |

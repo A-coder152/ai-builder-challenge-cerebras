@@ -96,9 +96,15 @@ export async function mocksRoutes(app: FastifyInstance): Promise<void> {
   app.post("/v1/mock/facilities/spaces", async (req, reply) => {
     const parse = FacilitiesUpdateSchema.safeParse(req.body);
     if (!parse.success) {
-      return sendError(reply, 422, "invalid_payload", "Invalid facilities update", {
-        issues: parse.error.issues,
-      });
+      return sendError(
+        reply,
+        422,
+        "invalid_payload",
+        "Invalid facilities update",
+        {
+          issues: parse.error.issues,
+        },
+      );
     }
     const { tagged_id, rack_location } = parse.data;
     if (rack_location === null) {
@@ -119,9 +125,15 @@ export async function mocksRoutes(app: FastifyInstance): Promise<void> {
   app.post("/v1/mock/finance/equipment", async (req, reply) => {
     const parse = FinanceUpdateSchema.safeParse(req.body);
     if (!parse.success) {
-      return sendError(reply, 422, "invalid_payload", "Invalid finance update", {
-        issues: parse.error.issues,
-      });
+      return sendError(
+        reply,
+        422,
+        "invalid_payload",
+        "Invalid finance update",
+        {
+          issues: parse.error.issues,
+        },
+      );
     }
     const { tag, ...patch } = parse.data;
     financeOverlay.set(tag, patch);

@@ -4,7 +4,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Asset tracking — challenge starter",
-  description: "Take-home: build the user experience on top of the asset tracking API.",
+  description:
+    "Take-home: build the user experience on top of the asset tracking API.",
 };
 
 export default function RootLayout({

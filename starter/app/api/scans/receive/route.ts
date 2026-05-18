@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message, code: err.code, details: err.details },
-      { status: err.status || 500 }
+      { status: err.status || 500 },
     );
   }
 }

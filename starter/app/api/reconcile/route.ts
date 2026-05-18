@@ -6,6 +6,9 @@ export async function GET() {
     const report = await getReconciliationReport();
     return NextResponse.json(report);
   } catch (error) {
-    return NextResponse.json({ error: 'Reconciliation failed' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Reconciliation failed" },
+      { status: 500 },
+    );
   }
 }

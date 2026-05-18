@@ -23,9 +23,15 @@ export async function scansRoutes(app: FastifyInstance): Promise<void> {
   app.post("/v1/scans/receive", async (req, reply) => {
     const parse = ReceiveScanInputSchema.safeParse(req.body);
     if (!parse.success) {
-      return sendError(reply, 422, "invalid_location", "Invalid receive payload", {
-        issues: parse.error.issues,
-      });
+      return sendError(
+        reply,
+        422,
+        "invalid_location",
+        "Invalid receive payload",
+        {
+          issues: parse.error.issues,
+        },
+      );
     }
     const input = parse.data;
 
@@ -108,15 +114,26 @@ export async function scansRoutes(app: FastifyInstance): Promise<void> {
   app.post("/v1/scans/store", async (req, reply) => {
     const parse = StoreScanInputSchema.safeParse(req.body);
     if (!parse.success) {
-      return sendError(reply, 422, "invalid_location", "Invalid store payload", {
-        issues: parse.error.issues,
-      });
+      return sendError(
+        reply,
+        422,
+        "invalid_location",
+        "Invalid store payload",
+        {
+          issues: parse.error.issues,
+        },
+      );
     }
     const input = parse.data;
     const db = getDb();
     const asset = getAsset(db, input.asset_tag);
     if (!asset) {
-      return sendError(reply, 404, "unknown_asset", `Asset ${input.asset_tag} not found`);
+      return sendError(
+        reply,
+        404,
+        "unknown_asset",
+        `Asset ${input.asset_tag} not found`,
+      );
     }
     const next = findTransition(asset.state, "store");
     if (next !== "stored") {
@@ -155,9 +172,15 @@ export async function scansRoutes(app: FastifyInstance): Promise<void> {
   app.post("/v1/scans/deploy", async (req, reply) => {
     const parse = DeployScanInputSchema.safeParse(req.body);
     if (!parse.success) {
-      return sendError(reply, 422, "invalid_location", "Invalid deploy payload", {
-        issues: parse.error.issues,
-      });
+      return sendError(
+        reply,
+        422,
+        "invalid_location",
+        "Invalid deploy payload",
+        {
+          issues: parse.error.issues,
+        },
+      );
     }
     const input = parse.data;
     if (!isDeployLocationComplete(input.location)) {
@@ -172,7 +195,12 @@ export async function scansRoutes(app: FastifyInstance): Promise<void> {
     const db = getDb();
     const asset = getAsset(db, input.asset_tag);
     if (!asset) {
-      return sendError(reply, 404, "unknown_asset", `Asset ${input.asset_tag} not found`);
+      return sendError(
+        reply,
+        404,
+        "unknown_asset",
+        `Asset ${input.asset_tag} not found`,
+      );
     }
     const next = findTransition(asset.state, "deploy");
     if (next !== "in_service") {
@@ -213,15 +241,26 @@ export async function scansRoutes(app: FastifyInstance): Promise<void> {
   app.post("/v1/scans/transfer", async (req, reply) => {
     const parse = TransferScanInputSchema.safeParse(req.body);
     if (!parse.success) {
-      return sendError(reply, 422, "invalid_location", "Invalid transfer payload", {
-        issues: parse.error.issues,
-      });
+      return sendError(
+        reply,
+        422,
+        "invalid_location",
+        "Invalid transfer payload",
+        {
+          issues: parse.error.issues,
+        },
+      );
     }
     const input = parse.data;
     const db = getDb();
     const asset = getAsset(db, input.asset_tag);
     if (!asset) {
-      return sendError(reply, 404, "unknown_asset", `Asset ${input.asset_tag} not found`);
+      return sendError(
+        reply,
+        404,
+        "unknown_asset",
+        `Asset ${input.asset_tag} not found`,
+      );
     }
     if (asset.state === "disposed" || asset.state === "unreceived") {
       return sendError(

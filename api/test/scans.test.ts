@@ -152,7 +152,13 @@ describe("scans: store + deploy + transitions", () => {
   it("deploy: 422 incomplete_deploy_location when rack/ru missing", async () => {
     const res = await inject("POST", "/v1/scans/deploy", {
       asset_tag: "C0000107",
-      location: { site: "Lab-Building-A", room: "Bay-1", row: null, rack: null, ru: null },
+      location: {
+        site: "Lab-Building-A",
+        room: "Bay-1",
+        row: null,
+        rack: null,
+        ru: null,
+      },
       user_id: "tech-jane",
       scan_payload: "DEPLOY|C0000107",
     });
@@ -201,7 +207,10 @@ describe("scans: store + deploy + transitions", () => {
     const app = await getApp();
     const put = await app.inject({ method: "PUT", url: "/v1/events/anything" });
     expect(put.statusCode).toBe(404);
-    const del = await app.inject({ method: "DELETE", url: "/v1/events/anything" });
+    const del = await app.inject({
+      method: "DELETE",
+      url: "/v1/events/anything",
+    });
     expect(del.statusCode).toBe(404);
   });
 });
@@ -270,7 +279,10 @@ describe("mock writes", () => {
     expect(post.statusCode).toBe(200);
 
     const get = await inject("GET", "/v1/mock/facilities/spaces");
-    const rows = get.json() as Array<{ tagged_id: string; rack_location: string }>;
+    const rows = get.json() as Array<{
+      tagged_id: string;
+      rack_location: string;
+    }>;
     const row = rows.find((r) => r.tagged_id === "C0000101");
     expect(row?.rack_location).toBe("Lab-Building-Z/Test-1/Aisle-9/X-99/U99");
   });
@@ -296,7 +308,11 @@ describe("mock writes", () => {
     expect(post.statusCode).toBe(200);
 
     const get = await inject("GET", "/v1/mock/finance/equipment");
-    const rows = get.json() as Array<{ tag: string; status: string; book_value_usd: number }>;
+    const rows = get.json() as Array<{
+      tag: string;
+      status: string;
+      book_value_usd: number;
+    }>;
     const row = rows.find((r) => r.tag === "C0000107");
     expect(row?.status).toBe("capitalized");
     expect(row?.book_value_usd).toBe(99999);
@@ -310,7 +326,10 @@ describe("mock writes", () => {
     await inject("POST", "/v1/reset");
 
     const get = await inject("GET", "/v1/mock/facilities/spaces");
-    const rows = get.json() as Array<{ tagged_id: string; rack_location: string }>;
+    const rows = get.json() as Array<{
+      tagged_id: string;
+      rack_location: string;
+    }>;
     const row = rows.find((r) => r.tagged_id === "C0000101");
     expect(row?.rack_location).toBe("Lab-Building-A/Bay-12/Aisle-3/B-04/P-02");
   });

@@ -1,6 +1,6 @@
 # Asset tracking — challenge starter
 
-Welcome. **Read [`../docs/CHALLENGE.md`](../docs/CHALLENGE.md) first** — it explains what you're building. If you want more narrative on *why* this kind of system exists, [`../docs/CONTEXT.md`](../docs/CONTEXT.md) is optional background.
+Welcome. **Read [`../docs/CHALLENGE.md`](../docs/CHALLENGE.md) first** — it explains what you're building. If you want more narrative on _why_ this kind of system exists, [`../docs/CONTEXT.md`](../docs/CONTEXT.md) is optional background.
 
 This README is operational: how to install, run, and deploy.
 
@@ -34,18 +34,18 @@ The starter expects the upstream API at `API_BASE_URL` (default `http://localhos
 
 ## What's prebuilt
 
-| File | What |
-|---|---|
-| `lib/api-client.ts` | Typed wrapper around every `/v1/*` endpoint. In the browser it talks to `/api/upstream`; on the server it goes directly to `API_BASE_URL`. Throws `ApiError` with the structured error payload. |
-| `lib/types.ts` | TypeScript mirror of the API schemas. |
-| `lib/auth.ts` | Cookie-based role switcher between `tech-jane` and `manager-paul`. |
-| `components/ScanInput.tsx` | Auto-focus, Enter-to-submit, glove-sized input. Use it or replace it. |
-| `components/RoleSwitcher.tsx` | Header button to swap roles. |
-| `app/api/upstream/[...path]/route.ts` | Same-origin proxy that adds the bearer token. Don't modify unless you have a reason. |
-| `app/page.tsx` | Landing page. |
-| `docs/api-reference.md` | API contract. |
-| `docs/tips.md` | Notes you'll want to read before coding. |
-| `docs/happy-path.md` | 10-step smoke test. Run before submitting. |
+| File                                  | What                                                                                                                                                                                            |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lib/api-client.ts`                   | Typed wrapper around every `/v1/*` endpoint. In the browser it talks to `/api/upstream`; on the server it goes directly to `API_BASE_URL`. Throws `ApiError` with the structured error payload. |
+| `lib/types.ts`                        | TypeScript mirror of the API schemas.                                                                                                                                                           |
+| `lib/auth.ts`                         | Cookie-based role switcher between `tech-jane` and `manager-paul`.                                                                                                                              |
+| `components/ScanInput.tsx`            | Auto-focus, Enter-to-submit, glove-sized input. Use it or replace it.                                                                                                                           |
+| `components/RoleSwitcher.tsx`         | Header button to swap roles.                                                                                                                                                                    |
+| `app/api/upstream/[...path]/route.ts` | Same-origin proxy that adds the bearer token. Don't modify unless you have a reason.                                                                                                            |
+| `app/page.tsx`                        | Landing page.                                                                                                                                                                                   |
+| `docs/api-reference.md`               | API contract.                                                                                                                                                                                   |
+| `docs/tips.md`                        | Notes you'll want to read before coding.                                                                                                                                                        |
+| `docs/happy-path.md`                  | 10-step smoke test. Run before submitting.                                                                                                                                                      |
 
 ## What you'll build
 
@@ -53,22 +53,22 @@ These files are stubs you'll replace. Read [`../docs/CHALLENGE.md`](../docs/CHAL
 
 **Tech (mobile-first scan workflows):**
 
-| File | Build |
-|---|---|
-| `app/tech/receive/page.tsx` | The dock-side receive scan. New tag → create. Duplicate tag + matching serial → idempotent. Duplicate tag + different serial → loud error. |
-| `app/tech/store/page.tsx` | Asset scan → storage location scan → commit. |
-| `app/tech/deploy/page.tsx` | Asset scan → deploy location scan (must include rack + ru) → commit. Should also write back to facilities + finance. |
-| `app/tech/transfer/page.tsx` | Asset scan → receiving party's badge scan → custodian changes; state doesn't. |
-| `app/tech/page.tsx` | Optional tech landing page. |
+| File                         | Build                                                                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `app/tech/receive/page.tsx`  | The dock-side receive scan. New tag → create. Duplicate tag + matching serial → idempotent. Duplicate tag + different serial → loud error. |
+| `app/tech/store/page.tsx`    | Asset scan → storage location scan → commit.                                                                                               |
+| `app/tech/deploy/page.tsx`   | Asset scan → deploy location scan (must include rack + ru) → commit. Should also write back to facilities + finance.                       |
+| `app/tech/transfer/page.tsx` | Asset scan → receiving party's badge scan → custodian changes; state doesn't.                                                              |
+| `app/tech/page.tsx`          | Optional tech landing page.                                                                                                                |
 
 **Manager (desktop):**
 
-| File | Build |
-|---|---|
-| `app/manager/page.tsx` | Asset list. Filter by state / site / custodian. Links to detail. |
-| `app/manager/assets/[tag]/page.tsx` | Asset detail. Current state + event history. |
-| `app/manager/reconcile/page.tsx` | Renders the reconciliation report from the route handler below. |
-| `app/api/reconcile/route.ts` | **Server-side join.** Pulls ops, facilities, and finance. Classifies. Returns a structured report. Currently returns 501. |
+| File                                | Build                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `app/manager/page.tsx`              | Asset list. Filter by state / site / custodian. Links to detail.                                                          |
+| `app/manager/assets/[tag]/page.tsx` | Asset detail. Current state + event history.                                                                              |
+| `app/manager/reconcile/page.tsx`    | Renders the reconciliation report from the route handler below.                                                           |
+| `app/api/reconcile/route.ts`        | **Server-side join.** Pulls ops, facilities, and finance. Classifies. Returns a structured report. Currently returns 501. |
 
 **Barcode tooling (your call where it lives):**
 
@@ -95,10 +95,10 @@ pnpm lint         # next lint
 
 ## Environment variables
 
-| Variable | Notes |
-|---|---|
-| `API_BASE_URL` | Upstream API including `/v1`, e.g. `http://localhost:8080/v1` |
-| `API_TOKEN` | Server-only. Do **not** prefix with `NEXT_PUBLIC_`. Browser code hits `/api/upstream/*` instead. |
+| Variable       | Notes                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| `API_BASE_URL` | Upstream API including `/v1`, e.g. `http://localhost:8080/v1`                                    |
+| `API_TOKEN`    | Server-only. Do **not** prefix with `NEXT_PUBLIC_`. Browser code hits `/api/upstream/*` instead. |
 
 ## Submitting
 

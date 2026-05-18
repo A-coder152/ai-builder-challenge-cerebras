@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { asset_tag } = body;
     const before = await api.assets.get(asset_tag);
-    
+
     const result = await api.scans.store(body);
 
     if (before.state === "in_service") {
@@ -16,14 +16,20 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json({ 
-        asset: result, 
-        sync: { facilities: { ok: true, action: before.state === "in_service" ? "cleared" : "skipped_expected" } } 
+    return NextResponse.json({
+      asset: result,
+      sync: {
+        facilities: {
+          ok: true,
+          action:
+            before.state === "in_service" ? "cleared" : "skipped_expected",
+        },
+      },
     });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message, code: err.code, details: err.details },
-      { status: err.status || 500 }
+      { status: err.status || 500 },
     );
   }
 }

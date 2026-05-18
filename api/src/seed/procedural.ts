@@ -36,16 +36,66 @@ type ModelDef = {
 };
 
 const MODELS: ModelDef[] = [
-  { manufacturer: "BioSystems Inc", model: "Genomics Sequencer 2000", asset_class: "instrument", base_value: 1_250_000 },
-  { manufacturer: "BioSystems Inc", model: "Genomics Sequencer 4000", asset_class: "instrument", base_value: 1_750_000 },
-  { manufacturer: "ChemAnalytics", model: "Mass Spectrometer 800", asset_class: "instrument", base_value: 875_000 },
-  { manufacturer: "ChemAnalytics", model: "Mass Spectrometer 1200", asset_class: "instrument", base_value: 1_100_000 },
-  { manufacturer: "OptiLab", model: "Confocal Microscope CX-9", asset_class: "instrument", base_value: 620_000 },
-  { manufacturer: "NetCorp", model: "Lab Network Switch 48p", asset_class: "network", base_value: 45_000 },
-  { manufacturer: "NetCorp", model: "Lab Network Switch 96p", asset_class: "network", base_value: 95_000 },
-  { manufacturer: "ServerCo", model: "Compute Server R760", asset_class: "compute", base_value: 32_000 },
-  { manufacturer: "ServerCo", model: "Compute Server R860", asset_class: "compute", base_value: 48_000 },
-  { manufacturer: "PowerLine", model: "Lab PDU 50A", asset_class: "power", base_value: 8_000 },
+  {
+    manufacturer: "BioSystems Inc",
+    model: "Genomics Sequencer 2000",
+    asset_class: "instrument",
+    base_value: 1_250_000,
+  },
+  {
+    manufacturer: "BioSystems Inc",
+    model: "Genomics Sequencer 4000",
+    asset_class: "instrument",
+    base_value: 1_750_000,
+  },
+  {
+    manufacturer: "ChemAnalytics",
+    model: "Mass Spectrometer 800",
+    asset_class: "instrument",
+    base_value: 875_000,
+  },
+  {
+    manufacturer: "ChemAnalytics",
+    model: "Mass Spectrometer 1200",
+    asset_class: "instrument",
+    base_value: 1_100_000,
+  },
+  {
+    manufacturer: "OptiLab",
+    model: "Confocal Microscope CX-9",
+    asset_class: "instrument",
+    base_value: 620_000,
+  },
+  {
+    manufacturer: "NetCorp",
+    model: "Lab Network Switch 48p",
+    asset_class: "network",
+    base_value: 45_000,
+  },
+  {
+    manufacturer: "NetCorp",
+    model: "Lab Network Switch 96p",
+    asset_class: "network",
+    base_value: 95_000,
+  },
+  {
+    manufacturer: "ServerCo",
+    model: "Compute Server R760",
+    asset_class: "compute",
+    base_value: 32_000,
+  },
+  {
+    manufacturer: "ServerCo",
+    model: "Compute Server R860",
+    asset_class: "compute",
+    base_value: 48_000,
+  },
+  {
+    manufacturer: "PowerLine",
+    model: "Lab PDU 50A",
+    asset_class: "power",
+    base_value: 8_000,
+  },
 ];
 
 const COUNT = 1000;
@@ -79,13 +129,37 @@ function locationFor(state: AssetState, i: number): Location {
       return { site, room, row, rack, ru };
     }
     case "stored":
-      return { site, room: `Storage-${(i % 3) + 1}`, row: null, rack: `SHELF-${(i % 12) + 1}`, ru: null };
+      return {
+        site,
+        room: `Storage-${(i % 3) + 1}`,
+        row: null,
+        rack: `SHELF-${(i % 12) + 1}`,
+        ru: null,
+      };
     case "received":
-      return { site, room: "Receiving", row: null, rack: `DOCK-${(i % 4) + 1}`, ru: null };
+      return {
+        site,
+        room: "Receiving",
+        row: null,
+        rack: `DOCK-${(i % 4) + 1}`,
+        ru: null,
+      };
     case "rma_pending":
-      return { site, room: "Staging-RMA", row: null, rack: `BIN-RMA-${(i % 3) + 1}`, ru: null };
+      return {
+        site,
+        room: "Staging-RMA",
+        row: null,
+        rack: `BIN-RMA-${(i % 3) + 1}`,
+        ru: null,
+      };
     case "disposed":
-      return { site, room: "Disposal", row: null, rack: `PALLET-${(i % 5) + 1}`, ru: null };
+      return {
+        site,
+        room: "Disposal",
+        row: null,
+        rack: `PALLET-${(i % 5) + 1}`,
+        ru: null,
+      };
     default:
       return { site, room: null, row: null, rack: null, ru: null };
   }
@@ -100,38 +174,49 @@ function custodianFor(state: AssetState, i: number): string {
 
 type EnrichedAsset = SeedAsset & { _modelBaseValue: number };
 
-const ASSETS_INTERNAL: EnrichedAsset[] = Array.from({ length: COUNT }, (_, i) => {
-  const state = stateForIndex(i);
-  const model = MODELS[i % MODELS.length]!;
-  return {
-    asset_tag: tagFor(i),
-    serial: `SN-PROC-${String(i).padStart(5, "0")}`,
-    model: model.model,
-    manufacturer: model.manufacturer,
-    asset_class: model.asset_class,
-    state,
-    location: locationFor(state, i),
-    custodian: custodianFor(state, i),
-    parent_asset_tag: null,
-    procurement_note: null,
-    _modelBaseValue: model.base_value,
-  };
-});
+const ASSETS_INTERNAL: EnrichedAsset[] = Array.from(
+  { length: COUNT },
+  (_, i) => {
+    const state = stateForIndex(i);
+    const model = MODELS[i % MODELS.length]!;
+    return {
+      asset_tag: tagFor(i),
+      serial: `SN-PROC-${String(i).padStart(5, "0")}`,
+      model: model.model,
+      manufacturer: model.manufacturer,
+      asset_class: model.asset_class,
+      state,
+      location: locationFor(state, i),
+      custodian: custodianFor(state, i),
+      parent_asset_tag: null,
+      procurement_note: null,
+      _modelBaseValue: model.base_value,
+    };
+  },
+);
 
-export const PROCEDURAL_ASSETS: SeedAsset[] = ASSETS_INTERNAL.map(({ _modelBaseValue, ...rest }) => rest);
+export const PROCEDURAL_ASSETS: SeedAsset[] = ASSETS_INTERNAL.map(
+  ({ _modelBaseValue, ...rest }) => rest,
+);
 
 // Facilities only tracks racked equipment. So in_service only.
 let facilitySeq = 2000;
-export const PROCEDURAL_FACILITIES: FacilitiesRecord[] = ASSETS_INTERNAL
-  .filter((a) => a.state === "in_service")
-  .map((a) => ({
-    space_id: `fac-p${String(facilitySeq++).padStart(4, "0")}`,
-    tagged_id: a.asset_tag,
-    rack_location: [a.location.site, a.location.room, a.location.row, a.location.rack, a.location.ru]
-      .filter(Boolean)
-      .join("/"),
-    last_observed: "2026-05-09T03:00:00Z",
-  }));
+export const PROCEDURAL_FACILITIES: FacilitiesRecord[] = ASSETS_INTERNAL.filter(
+  (a) => a.state === "in_service",
+).map((a) => ({
+  space_id: `fac-p${String(facilitySeq++).padStart(4, "0")}`,
+  tagged_id: a.asset_tag,
+  rack_location: [
+    a.location.site,
+    a.location.room,
+    a.location.row,
+    a.location.rack,
+    a.location.ru,
+  ]
+    .filter(Boolean)
+    .join("/"),
+  last_observed: "2026-05-09T03:00:00Z",
+}));
 
 // Finance tracks every asset. Disposed assets are "retired" on finance's side;
 // everything else is "capitalized." No drift — the planted ambiguous case

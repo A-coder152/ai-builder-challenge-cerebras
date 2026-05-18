@@ -13,9 +13,15 @@ export async function assetsRoutes(app: FastifyInstance): Promise<void> {
   app.get("/v1/assets", async (req, reply) => {
     const parse = ListQuerySchema.safeParse(req.query);
     if (!parse.success) {
-      return sendError(reply, 400, "invalid_query", "Invalid query parameters", {
-        issues: parse.error.issues,
-      });
+      return sendError(
+        reply,
+        400,
+        "invalid_query",
+        "Invalid query parameters",
+        {
+          issues: parse.error.issues,
+        },
+      );
     }
     const assets = listAssets(getDb(), parse.data);
     return reply.send(assets);
@@ -26,7 +32,12 @@ export async function assetsRoutes(app: FastifyInstance): Promise<void> {
     async (req, reply) => {
       const asset = getAsset(getDb(), req.params.asset_tag);
       if (!asset) {
-        return sendError(reply, 404, "unknown_asset", `Asset ${req.params.asset_tag} not found`);
+        return sendError(
+          reply,
+          404,
+          "unknown_asset",
+          `Asset ${req.params.asset_tag} not found`,
+        );
       }
       return reply.send(asset);
     },
@@ -37,7 +48,12 @@ export async function assetsRoutes(app: FastifyInstance): Promise<void> {
     async (req, reply) => {
       const asset = getAsset(getDb(), req.params.asset_tag);
       if (!asset) {
-        return sendError(reply, 404, "unknown_asset", `Asset ${req.params.asset_tag} not found`);
+        return sendError(
+          reply,
+          404,
+          "unknown_asset",
+          `Asset ${req.params.asset_tag} not found`,
+        );
       }
       const events = listEvents(getDb(), req.params.asset_tag);
       return reply.send(events);

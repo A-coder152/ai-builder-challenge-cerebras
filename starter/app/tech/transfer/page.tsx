@@ -1,45 +1,55 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import CameraScanner from '@/components/CameraScanner';
-import { ScanWorkflowShell } from '@/components/scan/ScanWorkflowShell';
-import { ScanField } from '@/components/scan/ScanField';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import CameraScanner from "@/components/CameraScanner";
+import { ScanWorkflowShell } from "@/components/scan/ScanWorkflowShell";
+import { ScanField } from "@/components/scan/ScanField";
 
 const TransferPage: React.FC = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState({ asset_tag: '', to_custodian: '' });
+  const [formData, setFormData] = useState({ asset_tag: "", to_custodian: "" });
   const [error, setError] = useState<string | null>(null);
-  const [scanningField, setScanningField] = useState<keyof typeof formData | null>(null);
+  const [scanningField, setScanningField] = useState<
+    keyof typeof formData | null
+  >(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     try {
-      await fetch('/api/scans/transfer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("/api/scans/transfer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           asset_tag: formData.asset_tag,
           to_custodian: formData.to_custodian,
-          user_id: 'tech-jane',
+          user_id: "tech-jane",
           scan_payload: formData.asset_tag,
         }),
       });
-      router.push('/manager');
+      router.push("/manager");
     } catch (err: any) {
-      setError(err.message || 'Failed to transfer asset');
+      setError(err.message || "Failed to transfer asset");
     }
   };
 
   if (scanningField) {
     return (
       <ScanWorkflowShell title="Scan Barcode">
-        <CameraScanner 
-          onScan={(val) => { setFormData(p => ({ ...p, [scanningField]: val })); setScanningField(null); }} 
-          onError={(err) => setError(err.message)} 
+        <CameraScanner
+          onScan={(val) => {
+            setFormData((p) => ({ ...p, [scanningField]: val }));
+            setScanningField(null);
+          }}
+          onError={(err) => setError(err.message)}
         />
-        <button onClick={() => setScanningField(null)} className="mt-4 w-full text-gray-500">Cancel</button>
+        <button
+          onClick={() => setScanningField(null)}
+          className="mt-4 w-full text-gray-500"
+        >
+          Cancel
+        </button>
       </ScanWorkflowShell>
     );
   }
@@ -47,9 +57,25 @@ const TransferPage: React.FC = () => {
   return (
     <ScanWorkflowShell title="Transfer Custody" error={error}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <ScanField label="Asset Tag" value={formData.asset_tag} onChange={(v) => setFormData(p => ({...p, asset_tag: v}))} onScan={() => setScanningField('asset_tag')} autoFocus />
-        <ScanField label="Receiving User Badge" value={formData.to_custodian} onChange={(v) => setFormData(p => ({...p, to_custodian: v}))} onScan={() => setScanningField('to_custodian')} />
-        <button type="submit" className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold">Transfer Asset</button>
+        <ScanField
+          label="Asset Tag"
+          value={formData.asset_tag}
+          onChange={(v) => setFormData((p) => ({ ...p, asset_tag: v }))}
+          onScan={() => setScanningField("asset_tag")}
+          autoFocus
+        />
+        <ScanField
+          label="Receiving User Badge"
+          value={formData.to_custodian}
+          onChange={(v) => setFormData((p) => ({ ...p, to_custodian: v }))}
+          onScan={() => setScanningField("to_custodian")}
+        />
+        <button
+          type="submit"
+          className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold"
+        >
+          Transfer Asset
+        </button>
       </form>
     </ScanWorkflowShell>
   );

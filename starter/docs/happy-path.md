@@ -15,19 +15,19 @@ Open http://localhost:3000.
 
 ## The path
 
-| # | Where | Do this | Expect |
-|---|---|---|---|
-| 1 | `/tech/receive` | Scan a fresh tag (e.g. `C0009001`) with a new serial (e.g. `SN-DEMO-1`) and a complete-enough location | Asset is created; receipt event recorded |
-| 2 | `/tech/receive` | Scan the **same** tag and **same** serial again | Idempotent — same asset returned, no error, a `duplicate_receive` event is logged |
-| 3 | `/tech/receive` | Scan the same tag with a **different** serial | Clear, on-screen error. The user should see *which* serial conflicts, not just "error" |
-| 4 | `/tech/store` | Scan `C0009001`, then scan a storage location (no `ru` needed) | Asset transitions to `stored`; store event recorded |
-| 5 | `/tech/deploy` | Scan `C0009001`, then scan a deploy location **missing `ru`** | Clear, on-screen error. The user should know what's missing |
-| 6 | `/tech/deploy` | Same scan, but with a complete location including `ru` | Asset transitions to `in_service`; deploy event recorded |
-| 7 | `/tech/transfer` | Scan `C0009001`, then scan a different tech's badge (e.g. `tech-mike`) | Custodian changes; state stays `in_service`; transfer event recorded |
-| 8 | `/manager` | Open the asset list | Your new asset appears alongside the seeded ones. Filtering by state should work |
-| 9 | `/manager/assets/C0009001` | Open the asset detail | Current state visible. Event history visible, newest first, with the transfer event in there |
-| 10 | `/manager/reconcile` | Open the reconciliation page | Renders a categorized report. Empty/error/loading states all reasonable. Your deploy in step 6 should have written to facilities + finance — verify it doesn't show up as drift |
-| 11 | Mobile (DevTools 375px or a real phone) | Open `/tech/receive` on a small viewport | Tap targets are reachable. The input is focused. The camera scanner works if you built one |
+| #   | Where                                   | Do this                                                                                                | Expect                                                                                                                                                                          |
+| --- | --------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `/tech/receive`                         | Scan a fresh tag (e.g. `C0009001`) with a new serial (e.g. `SN-DEMO-1`) and a complete-enough location | Asset is created; receipt event recorded                                                                                                                                        |
+| 2   | `/tech/receive`                         | Scan the **same** tag and **same** serial again                                                        | Idempotent — same asset returned, no error, a `duplicate_receive` event is logged                                                                                               |
+| 3   | `/tech/receive`                         | Scan the same tag with a **different** serial                                                          | Clear, on-screen error. The user should see _which_ serial conflicts, not just "error"                                                                                          |
+| 4   | `/tech/store`                           | Scan `C0009001`, then scan a storage location (no `ru` needed)                                         | Asset transitions to `stored`; store event recorded                                                                                                                             |
+| 5   | `/tech/deploy`                          | Scan `C0009001`, then scan a deploy location **missing `ru`**                                          | Clear, on-screen error. The user should know what's missing                                                                                                                     |
+| 6   | `/tech/deploy`                          | Same scan, but with a complete location including `ru`                                                 | Asset transitions to `in_service`; deploy event recorded                                                                                                                        |
+| 7   | `/tech/transfer`                        | Scan `C0009001`, then scan a different tech's badge (e.g. `tech-mike`)                                 | Custodian changes; state stays `in_service`; transfer event recorded                                                                                                            |
+| 8   | `/manager`                              | Open the asset list                                                                                    | Your new asset appears alongside the seeded ones. Filtering by state should work                                                                                                |
+| 9   | `/manager/assets/C0009001`              | Open the asset detail                                                                                  | Current state visible. Event history visible, newest first, with the transfer event in there                                                                                    |
+| 10  | `/manager/reconcile`                    | Open the reconciliation page                                                                           | Renders a categorized report. Empty/error/loading states all reasonable. Your deploy in step 6 should have written to facilities + finance — verify it doesn't show up as drift |
+| 11  | Mobile (DevTools 375px or a real phone) | Open `/tech/receive` on a small viewport                                                               | Tap targets are reachable. The input is focused. The camera scanner works if you built one                                                                                      |
 
 ## Reset between runs
 

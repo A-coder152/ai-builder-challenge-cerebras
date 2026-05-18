@@ -43,7 +43,7 @@ Four screens — `/tech/receive`, `/tech/store`, `/tech/deploy`, `/tech/transfer
 
 The tech's device can be either: (a) a desktop or tablet with a USB/Bluetooth handheld scanner that types into the focused input and presses Enter, or (b) **a phone using its camera as the scanner**. Both flows should feel native. For the camera path, pick a library — `@zxing/browser` and `html5-qrcode` are both fine; we expect you'll lean on AI to wire it up.
 
-`/tech/transfer` is a two-sided custody handoff. Scan the asset, then scan the receiving party's badge. The logged-in user is the *from* side automatically — only the receiving side gets an explicit scan. State doesn't change; custodian does. The badge value is just the receiving user's ID (`tech-mike`, `manager-paul`, etc.).
+`/tech/transfer` is a two-sided custody handoff. Scan the asset, then scan the receiving party's badge. The logged-in user is the _from_ side automatically — only the receiving side gets an explicit scan. State doesn't change; custodian does. The badge value is just the receiving user's ID (`tech-mike`, `manager-paul`, etc.).
 
 The API enforces the rules (state machine, idempotency on duplicate receive, location completeness for deploy — see [`api-reference.md`](../starter/docs/api-reference.md)). The interesting decisions sit above the API: what does a successful scan feel like? What does a confusing scan feel like? What's the recovery path when the tech messes up?
 

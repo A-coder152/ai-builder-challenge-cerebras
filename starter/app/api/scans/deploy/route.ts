@@ -20,14 +20,17 @@ export async function POST(request: Request) {
       capitalized_on: new Date().toISOString(),
     });
 
-    return NextResponse.json({ 
-        asset: result, 
-        sync: { facilities: { ok: true, rack_location }, finance: { ok: true, status: "capitalized" } } 
+    return NextResponse.json({
+      asset: result,
+      sync: {
+        facilities: { ok: true, rack_location },
+        finance: { ok: true, status: "capitalized" },
+      },
     });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message, code: err.code, details: err.details },
-      { status: err.status || 500 }
+      { status: err.status || 500 },
     );
   }
 }

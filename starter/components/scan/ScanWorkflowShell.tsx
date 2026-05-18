@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode } from "react";
 
 interface ScanWorkflowShellProps {
   title: string;
@@ -8,7 +8,11 @@ interface ScanWorkflowShellProps {
   error?: string | null;
 }
 
-export const ScanWorkflowShell: React.FC<ScanWorkflowShellProps> = ({ title, children, error }) => (
+export const ScanWorkflowShell: React.FC<ScanWorkflowShellProps> = ({
+  title,
+  children,
+  error,
+}) => (
   <div className="container mx-auto p-6 max-w-lg">
     <h1 className="text-2xl font-bold mb-6 text-gray-900">{title}</h1>
     {error && (

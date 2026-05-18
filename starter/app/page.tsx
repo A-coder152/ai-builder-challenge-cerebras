@@ -6,10 +6,10 @@ export default function HomePage() {
       <section>
         <h1 className="text-3xl font-semibold">Asset tracking challenge</h1>
         <p className="text-gray-600 mt-2 max-w-2xl">
-          You&apos;re looking at the starter. The hosted API runs separately and is
-          already populated with about a thousand assets, plus mock facilities and finance
-          data. Use the role switcher in the header to act as either a lab
-          technician (mobile) or an asset manager (desktop).
+          You&apos;re looking at the starter. The hosted API runs separately and
+          is already populated with about a thousand assets, plus mock
+          facilities and finance data. Use the role switcher in the header to
+          act as either a lab technician (mobile) or an asset manager (desktop).
         </p>
       </section>
 
@@ -26,22 +26,34 @@ export default function HomePage() {
               </Link>
             </li>
             <li>
-              <Link className="text-blue-700 hover:underline" href="/tech/receive">
+              <Link
+                className="text-blue-700 hover:underline"
+                href="/tech/receive"
+              >
                 /tech/receive
               </Link>
             </li>
             <li>
-              <Link className="text-blue-700 hover:underline" href="/tech/store">
+              <Link
+                className="text-blue-700 hover:underline"
+                href="/tech/store"
+              >
                 /tech/store
               </Link>
             </li>
             <li>
-              <Link className="text-blue-700 hover:underline" href="/tech/deploy">
+              <Link
+                className="text-blue-700 hover:underline"
+                href="/tech/deploy"
+              >
                 /tech/deploy
               </Link>
             </li>
             <li>
-              <Link className="text-blue-700 hover:underline" href="/tech/transfer">
+              <Link
+                className="text-blue-700 hover:underline"
+                href="/tech/transfer"
+              >
                 /tech/transfer
               </Link>
             </li>

@@ -40,11 +40,15 @@ Body:
 
 ```ts
 {
-  asset_tag: string;          // must match /^C\d{7}$/
+  asset_tag: string; // must match /^C\d{7}$/
   serial: string;
   model: string;
   manufacturer: string;
-  asset_class: "instrument" | "compute" | "network" | "power" | "consumable_durable";
+  asset_class: "instrument" |
+    "compute" |
+    "network" |
+    "power" |
+    "consumable_durable";
   location: Location;
   user_id: string;
   scan_payload: string;
@@ -64,7 +68,9 @@ Other errors: `400 invalid_tag_format`, `422 invalid_location`.
 Body:
 
 ```ts
-{ asset_tag, location, user_id, scan_payload }
+{
+  (asset_tag, location, user_id, scan_payload);
+}
 ```
 
 Transitions the asset to `stored`. Allowed from `received` or `in_service` (removing it from a rack back into storage).
@@ -75,7 +81,9 @@ Errors: `404 unknown_asset`, `422 invalid_transition`.
 Body:
 
 ```ts
-{ asset_tag, location, user_id, scan_payload }
+{
+  (asset_tag, location, user_id, scan_payload);
+}
 ```
 
 Location **must** include `site`, `room`, `rack`, and `ru`. Transitions the asset to `in_service`. Allowed from `received` or `stored`.
@@ -89,8 +97,8 @@ Body:
 ```ts
 {
   asset_tag: string;
-  to_custodian: string;   // badge / user_id of the receiving party
-  user_id: string;        // logged-in user — the FROM custodian
+  to_custodian: string; // badge / user_id of the receiving party
+  user_id: string; // logged-in user — the FROM custodian
   scan_payload: string;
 }
 ```
@@ -105,10 +113,10 @@ Static mock. Returns the facilities-system view of where instruments are physica
 
 ```ts
 {
-  space_id: string;          // facilities-system internal id
-  tagged_id: string;         // matches Asset.asset_tag
-  rack_location: string;     // flat string: "Site/Room/Row/Rack/RU"
-  last_observed: string;     // ISO 8601
+  space_id: string; // facilities-system internal id
+  tagged_id: string; // matches Asset.asset_tag
+  rack_location: string; // flat string: "Site/Room/Row/Rack/RU"
+  last_observed: string; // ISO 8601
 }
 ```
 
@@ -121,7 +129,7 @@ Upserts (or removes) a rack location for one asset.
 ```ts
 {
   tagged_id: string;
-  rack_location: string | null;   // null removes the row (de-rack)
+  rack_location: string | null; // null removes the row (de-rack)
 }
 ```
 
@@ -133,9 +141,9 @@ Static mock. Returns finance's view. Different schema again:
 
 ```ts
 {
-  finance_id: string;        // e.g., "EQ-44211"
-  tag: string;               // matches Asset.asset_tag
-  site: string;              // building level only
+  finance_id: string; // e.g., "EQ-44211"
+  tag: string; // matches Asset.asset_tag
+  site: string; // building level only
   book_value_usd: number;
   status: "capitalized" | "pending_receipt" | "retired" | "impaired";
   capitalized_on: string | null;
@@ -176,7 +184,7 @@ Wipes the database and re-seeds ~1,000 starter assets. Returns:
   room: string | null;
   row: string | null;
   rack: string | null;
-  ru: string | null;   // vertical position inside a rack
+  ru: string | null; // vertical position inside a rack
 }
 ```
 
@@ -184,18 +192,27 @@ Wipes the database and re-seeds ~1,000 starter assets. Returns:
 
 ```ts
 {
-  asset_tag: string;          // /^C\d{7}$/
+  asset_tag: string; // /^C\d{7}$/
   serial: string;
   model: string;
   manufacturer: string;
-  asset_class: "instrument" | "compute" | "network" | "power" | "consumable_durable";
-  state: "unreceived" | "received" | "stored" | "in_service" | "rma_pending" | "disposed";
+  asset_class: "instrument" |
+    "compute" |
+    "network" |
+    "power" |
+    "consumable_durable";
+  state: "unreceived" |
+    "received" |
+    "stored" |
+    "in_service" |
+    "rma_pending" |
+    "disposed";
   location: Location;
   custodian: string;
   parent_asset_tag: string | null;
-  procurement_note: string | null;  // free-text from procurement
-  created_at: string;         // ISO 8601
-  updated_at: string;         // ISO 8601
+  procurement_note: string | null; // free-text from procurement
+  created_at: string; // ISO 8601
+  updated_at: string; // ISO 8601
 }
 ```
 
@@ -203,9 +220,16 @@ Wipes the database and re-seeds ~1,000 starter assets. Returns:
 
 ```ts
 {
-  id: string;                 // ulid
+  id: string; // ulid
   asset_tag: string;
-  event_type: "receive" | "store" | "deploy" | "rma_open" | "rma_receive_back" | "dispose" | "duplicate_receive" | "transfer_custody";
+  event_type: "receive" |
+    "store" |
+    "deploy" |
+    "rma_open" |
+    "rma_receive_back" |
+    "dispose" |
+    "duplicate_receive" |
+    "transfer_custody";
   from_state: string | null;
   to_state: string;
   from_location: Location | null;
@@ -218,17 +242,17 @@ Wipes the database and re-seeds ~1,000 starter assets. Returns:
 
 ## Error codes
 
-| Code | HTTP | When |
-|---|---|---|
-| `unknown_asset` | 404 | No such asset_tag |
-| `and_match_failed` | 409 | Receive scan: tag exists, serial doesn't match |
-| `invalid_transition` | 422 | State machine rejects |
-| `invalid_location` | 422 | Location doesn't conform to schema |
-| `invalid_payload` | 422 | Mock write body fails validation |
-| `incomplete_deploy_location` | 422 | Deploy is missing site/room/rack/ru |
-| `invalid_tag_format` | 400 | asset_tag doesn't match `/^C\d{7}$/` |
-| `same_custodian` | 422 | Transfer `to_custodian` matches the current custodian |
-| `internal_error` | 500 | Unexpected |
+| Code                         | HTTP | When                                                  |
+| ---------------------------- | ---- | ----------------------------------------------------- |
+| `unknown_asset`              | 404  | No such asset_tag                                     |
+| `and_match_failed`           | 409  | Receive scan: tag exists, serial doesn't match        |
+| `invalid_transition`         | 422  | State machine rejects                                 |
+| `invalid_location`           | 422  | Location doesn't conform to schema                    |
+| `invalid_payload`            | 422  | Mock write body fails validation                      |
+| `incomplete_deploy_location` | 422  | Deploy is missing site/room/rack/ru                   |
+| `invalid_tag_format`         | 400  | asset_tag doesn't match `/^C\d{7}$/`                  |
+| `same_custodian`             | 422  | Transfer `to_custodian` matches the current custodian |
+| `internal_error`             | 500  | Unexpected                                            |
 
 ## State machine
 
@@ -238,17 +262,17 @@ unreceived → received → stored ⇄ in_service → rma_pending → received (
                         disposed                disposed
 ```
 
-| From | To | Via event |
-|---|---|---|
-| `unreceived` | `received` | receive |
-| `received` | `stored` | store |
-| `received` | `in_service` | deploy |
-| `stored` | `in_service` | deploy |
-| `stored` | `disposed` | dispose |
-| `in_service` | `stored` | store |
-| `in_service` | `rma_pending` | rma_open |
-| `in_service` | `disposed` | dispose |
-| `rma_pending` | `received` | rma_receive_back |
-| `rma_pending` | `disposed` | dispose |
+| From          | To            | Via event        |
+| ------------- | ------------- | ---------------- |
+| `unreceived`  | `received`    | receive          |
+| `received`    | `stored`      | store            |
+| `received`    | `in_service`  | deploy           |
+| `stored`      | `in_service`  | deploy           |
+| `stored`      | `disposed`    | dispose          |
+| `in_service`  | `stored`      | store            |
+| `in_service`  | `rma_pending` | rma_open         |
+| `in_service`  | `disposed`    | dispose          |
+| `rma_pending` | `received`    | rma_receive_back |
+| `rma_pending` | `disposed`    | dispose          |
 
 Only `receive`, `store`, `deploy`, and `transfer_custody` (state-preserving) are exposed as scan endpoints in v1.

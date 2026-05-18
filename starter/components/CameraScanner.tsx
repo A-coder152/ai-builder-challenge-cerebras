@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { BrowserMultiFormatReader, Result } from '@zxing/library';
+import React, { useEffect, useRef, useState } from "react";
+import { BrowserMultiFormatReader, Result } from "@zxing/library";
 
 interface CameraScannerProps {
   onScan: (result: string) => void;
@@ -30,7 +30,7 @@ const CameraScanner: React.FC<CameraScannerProps> = ({ onScan, onError }) => {
               } else if (error) {
                 if (onError) onError(error);
               }
-            }
+            },
           );
           setIsScanning(true);
         }

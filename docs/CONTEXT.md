@@ -6,9 +6,9 @@ The challenge framing — a research lab tracking instruments — is a stand-in.
 
 ## The three systems
 
-- **Operations** (the API you're building against). Owns *where is this thing right now, who has it, what state is it in*. Updated by scans.
-- **Facilities**. Owns *what positions exist in the building, what's at each one*. Doesn't track storage, receiving, or disposed items.
-- **Finance**. Owns *what we bought, what it's worth, whether it's still on the books*. Sees buildings, not racks.
+- **Operations** (the API you're building against). Owns _where is this thing right now, who has it, what state is it in_. Updated by scans.
+- **Facilities**. Owns _what positions exist in the building, what's at each one_. Doesn't track storage, receiving, or disposed items.
+- **Finance**. Owns _what we bought, what it's worth, whether it's still on the books_. Sees buildings, not racks.
 
 Each is the authority for its piece. None is the authority for everything.
 
