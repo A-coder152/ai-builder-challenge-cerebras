@@ -14,25 +14,43 @@ const StorePage: React.FC = () => {
     keyof typeof formData | null
   >(null);
 
+  const [result, setResult] = useState<any>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     try {
-      await fetch("/api/scans/store", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/scans/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           asset_tag: formData.asset_tag,
           location: { site: formData.location },
-          user_id: "tech-jane",
+          user_id: 'tech-jane',
           scan_payload: formData.asset_tag,
         }),
       });
-      router.push("/manager");
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || 'Failed to store asset. Check the tag and try again.');
+      setResult(data);
     } catch (err: any) {
-      setError(err.message || "Failed to store asset");
+      setError(err.message);
     }
   };
+
+  if (result) {
+    return (
+      <ScanWorkflowShell title="Success">
+        <div className="text-green-700 font-bold mb-4">Stored {result.asset.asset_tag}</div>
+        <div className="text-sm text-gray-600 mb-6">
+            {result.sync.facilities.action === 'cleared' 
+                ? 'Facilities de-racked because this asset was previously in service.' 
+                : 'No Facilities change needed because this asset was not racked.'}
+        </div>
+        <button onClick={() => { setResult(null); setFormData({ asset_tag: '', location: '' }); }} className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold">Scan another asset</button>
+      </ScanWorkflowShell>
+    );
+  }
 
   if (scanningField) {
     return (
