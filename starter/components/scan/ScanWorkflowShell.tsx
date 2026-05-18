@@ -21,8 +21,3 @@ export const ScanWorkflowShell: React.FC<ScanWorkflowShellProps> = ({ title, chi
     </div>
   </div>
 );
-
-      {children}
-    </div>
-  </div>
-);
