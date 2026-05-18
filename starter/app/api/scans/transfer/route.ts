@@ -1,15 +1,17 @@
-import { api } from "@/lib/api-client";
 import { NextResponse } from "next/server";
+import { scanErrorResponse, validateAssetTag, requireString } from "@/lib/scan-errors";
+import { transferWithWritebacks } from "@/lib/writebacks";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const result = await api.scans.transfer(body);
-    return NextResponse.json(result);
+    validateAssetTag(body.asset_tag);
+    requireString(body.to_custodian, "to_custodian");
+    requireString(body.user_id, "user_id");
+
+    return NextResponse.json(await transferWithWritebacks(body));
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message, code: err.code, details: err.details },
-      { status: err.status || 500 },
-    );
+    return scanErrorResponse(err);
   }
 }
+
