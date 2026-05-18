@@ -23,18 +23,19 @@ export const CameraScanner: React.FC<CameraScannerProps> = ({ onScan, onError, o
       try {
         const videoInputDevices = await reader.current.listVideoInputDevices();
         if (videoInputDevices && videoInputDevices.length > 0) {
-          // Attempt to find rear camera
           const rearCam = videoInputDevices.find(d => /back|rear|environment/i.test(d.label)) || videoInputDevices[0];
-          await reader.current.decodeFromVideoDevice(
-            rearCam.deviceId,
-            videoRef.current!,
-            (result: Result | undefined) => {
-              if (result) {
-                onScan(result.getText());
-                stopScanner();
+          if (rearCam) {
+            await reader.current.decodeFromVideoDevice(
+              rearCam.deviceId,
+              videoRef.current!,
+              (result: Result | undefined) => {
+                if (result) {
+                  onScan(result.getText());
+                  stopScanner();
+                }
               }
-            }
-          );
+            );
+          }
         }
       } catch (err) {
         setPermissionError(true);
