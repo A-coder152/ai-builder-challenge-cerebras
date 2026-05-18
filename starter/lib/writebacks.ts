@@ -12,6 +12,11 @@ function ok(action: SyncStatus["action"], message: string): SyncStatus {
   return { ok: true, action, message };
 }
 
+function failed(error: unknown): SyncStatus {
+  const message = error instanceof Error ? error.message : "Downstream writeback failed.";
+  return { ok: false, action: "failed", message };
+}
+
 export async function receiveWithWritebacks(input: ReceiveScanInput): Promise<ScanRouteResult<Asset>> {
   const asset = await api.scans.receive(input);
   return {
