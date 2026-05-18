@@ -1,18 +1,22 @@
-import type { Metadata } from "next";
+"use client";
+
 import { RoleSwitcher } from "@/components/RoleSwitcher";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Cerebras Asset Tracker",
-  description: "Enterprise asset tracking and reconciliation system.",
-};
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const [role, setRole] = useState("tech");
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+  useEffect(() => {
+    // Poll for role changes from RoleSwitcher/localStorage
+    const checkRole = () => setRole(localStorage.getItem("role") || "tech");
+    window.addEventListener("storage", checkRole);
+    const interval = setInterval(checkRole, 500);
+    return () => { clearInterval(interval); window.removeEventListener("storage", checkRole); };
+  }, []);
+
   return (
     <html lang="en">
       <body className="bg-gray-50 text-gray-900">
@@ -21,8 +25,8 @@ export default function RootLayout({
             <div className="flex items-center gap-8">
               <Link href="/" className="text-xl font-bold tracking-tight">Cerebras Tracker</Link>
               <nav className="flex gap-6 text-sm font-medium">
-                <Link href="/tech" className="hover:text-indigo-200">Tech Workflows</Link>
-                <Link href="/manager" className="hover:text-indigo-200">Manager Dashboard</Link>
+                {role === "tech" && <Link href="/tech" className="hover:text-indigo-200">Tech Workflows</Link>}
+                {role === "manager" && <Link href="/manager" className="hover:text-indigo-200">Manager Dashboard</Link>}
               </nav>
             </div>
             <RoleSwitcher />
