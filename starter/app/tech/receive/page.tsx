@@ -20,11 +20,13 @@ const ReceivePage: React.FC = () => {
     keyof typeof formData | null
   >(null);
 
+  const [result, setResult] = useState<any>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     try {
-      await fetch("/api/scans/receive", {
+      const response = await fetch("/api/scans/receive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -33,11 +35,33 @@ const ReceivePage: React.FC = () => {
           user_id: "tech-jane",
         }),
       });
-      router.push("/manager");
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(
+          data.error?.message || "Failed to receive asset. Check the asset tag and try again."
+        );
+      setResult(data);
     } catch (err: any) {
-      setError(err.message || "Failed to receive asset");
+      setError(err.message);
     }
   };
+
+  if (result) {
+    return (
+      <ScanWorkflowShell title="Success">
+        <div className="text-green-700 font-bold mb-4">Received {result.asset_tag}</div>
+        <button
+          onClick={() => {
+            setResult(null);
+            setFormData({ asset_tag: "", serial: "", model: "", manufacturer: "", asset_class: "instrument" });
+          }}
+          className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold"
+        >
+          Scan another asset
+        </button>
+      </ScanWorkflowShell>
+    );
+  }
 
   if (scanningField) {
     return (
