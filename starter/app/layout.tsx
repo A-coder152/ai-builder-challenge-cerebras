@@ -1,8 +1,8 @@
 "use client";
 
 import { RoleSwitcher } from "@/components/RoleSwitcher";
+import { getRole } from "@/lib/auth";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import "./globals.css";
 
@@ -10,11 +10,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const [role, setRole] = useState("tech");
 
   useEffect(() => {
-    // Poll for role changes from RoleSwitcher/localStorage
-    const checkRole = () => setRole(localStorage.getItem("role") || "tech");
-    window.addEventListener("storage", checkRole);
+    const checkRole = () => setRole(getRole());
+    // Listen to storage events isn't enough as RoleSwitcher uses cookies
+    // Add a simple interval to catch changes
     const interval = setInterval(checkRole, 500);
-    return () => { clearInterval(interval); window.removeEventListener("storage", checkRole); };
+    return () => clearInterval(interval);
   }, []);
 
   return (

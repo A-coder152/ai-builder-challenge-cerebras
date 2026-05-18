@@ -65,6 +65,12 @@ export async function getReconciliationReport(): Promise<ReconciliationReport> {
             title: 'Non-racked asset still appears racked', explanation: 'Asset is stored/received but still shows in facilities.',
             suggestedAction: 'Clear Facilities rack record.', detailUrl: `/manager/assets/${tag}`, systems: { operations, facilities, finance }
         };
+    } else if (['received', 'stored'].includes(operations?.state) && !facilities) {
+        issue = {
+            assetTag: tag, group: 'expected', severity: 'info', category: 'expected_non_racked',
+            title: 'Expected: not racked', explanation: 'Asset is stored/received and not in facilities.',
+            suggestedAction: 'None', detailUrl: `/manager/assets/${tag}`, systems: { operations, facilities, finance }
+        };
     } else if (!operations) {
         issue = {
             assetTag: tag, group: 'review', severity: 'medium', category: 'facilities_orphan',

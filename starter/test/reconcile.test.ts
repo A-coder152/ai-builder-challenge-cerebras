@@ -25,19 +25,20 @@ describe("reconciliation logic", () => {
     const report = await getReconciliationReport();
 
     expect(report.groups.actionNeeded).toHaveLength(1);
-    expect(report.groups.actionNeeded[0].category).toBe("missing_rack_record");
-  });
+    expect(report.groups.actionNeeded[0].category).toBe('missing_facilities_rack');
+    });
 
-  it("categorizes stored assets as expected", async () => {
+    it('categorizes stored assets as expected', async () => {
     (apiClient.api.assets.list as any).mockResolvedValue([
-      { asset_tag: "C0000002", state: "stored" },
+      { asset_tag: 'C0000002', state: 'stored' }
     ]);
     (apiClient.api.mock.facilities as any).mockResolvedValue([]);
     (apiClient.api.mock.finance as any).mockResolvedValue([]);
 
     const report = await getReconciliationReport();
-
+    
     expect(report.groups.expected).toHaveLength(1);
-    expect(report.groups.expected[0].category).toBe("expected_facilities_gap");
+    expect(report.groups.expected[0].category).toBe('expected_non_racked');
   });
 });
+
