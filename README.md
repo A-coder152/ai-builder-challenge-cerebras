@@ -1,8 +1,7 @@
-# Asset Tracking Challenge — A-coder152
+# Asset Tracking Challenge - A-coder152 (Abdullah Salim)
 
 ## Deployed app
-
-[Insert URL here]
+https://ai-builder-challenge-cerebras-start-teal.vercel.app
 
 ## Reviewer quick path
 
@@ -69,3 +68,4 @@ The `/dev/barcodes` page generates scannable labels for all test cases, includin
 ## Pushback / confusing brief notes
 
 - The brief asks for three scan endpoints but also explicitly requires `/tech/transfer`, which necessitated adding a fourth route.
+- GET /health is different from all other routes having a /v1/x. Standardizing would have made it simpler.

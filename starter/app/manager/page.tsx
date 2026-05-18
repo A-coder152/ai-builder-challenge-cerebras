@@ -4,19 +4,41 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api-client";
 
-interface Asset {
+type DashboardAsset = {
   asset_tag: string;
   serial: string;
   model: string;
   manufacturer: string;
+  asset_class: string;
   state: string;
   custodian: string;
-}
+};
+
+type ReconcileSummary = {
+  critical: number;
+  actionNeeded: number;
+  review: number;
+  expected: number;
+  clean: number;
+};
+
+const DashboardSkeleton = () => (
+  <div className="container mx-auto p-6 max-w-6xl animate-pulse text-gray-400">
+    Loading your fleet triage report...
+  </div>
+);
+
+const DashboardError = ({ message }: { message: string }) => (
+  <div className="container mx-auto p-6 max-w-6xl text-center text-red-600 font-medium">
+    {message}
+  </div>
+);
 
 const ManagerDashboard: React.FC = () => {
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [reconcileSummary, setReconcileSummary] = useState<any>(null);
+  const [assets, setAssets] = useState<DashboardAsset[]>([]);
+  const [reconcileSummary, setReconcileSummary] = useState<ReconcileSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,14 +49,18 @@ const ManagerDashboard: React.FC = () => {
         ]);
         setAssets(assetsData);
         setReconcileSummary(reconcileData.summary);
-      } catch (error) {
-        console.error("Failed to fetch dashboard data", error);
+      } catch (err) {
+        setError("Failed to fetch dashboard data. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
     fetchData();
   }, []);
+
+  if (loading) return <DashboardSkeleton />;
+  if (error) return <DashboardError message={error} />;
+  if (!reconcileSummary) return <DashboardError message="Could not load triage summary." />;
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
