@@ -9,7 +9,23 @@ export async function POST(request: Request) {
     requireString(body.user_id, "user_id");
     requireString(body.location?.site, "location.site");
 
-    return NextResponse.json(await storeWithWritebacks(body));
+    const { asset_tag, location, user_id, scan_payload } = body;
+    
+    // Ensure we send the full location schema to satisfy backend validation
+    const fullLocation = {
+        site: location.site,
+        room: location.room || null,
+        row: location.row || null,
+        rack: location.rack || null,
+        ru: location.ru || null
+    };
+
+    return NextResponse.json(await storeWithWritebacks({
+        asset_tag,
+        location: fullLocation,
+        user_id,
+        scan_payload
+    }));
   } catch (err: any) {
     return scanErrorResponse(err);
   }
