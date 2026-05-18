@@ -1,6 +1,17 @@
 import { api } from "@/lib/api-client";
+import { ReconciliationReport, ReconciliationIssue } from "@/lib/reconcile-types";
 
-export async function getReconciliationReport() {
+export function normalizeRack(value: string | null | undefined): string | null {
+  return value?.trim().replace(/\s+/g, "").replace(/\/+/g, "/").toLowerCase() ?? null;
+}
+
+export function formatOpsRack(asset: any): string | null {
+  const { site, room, row, rack, ru } = asset.location || {};
+  if (!site || !room || !row || !rack || !ru) return null;
+  return `${site}/${room}/${row}/${rack}/${ru}`.toLowerCase();
+}
+
+export async function getReconciliationReport(): Promise<ReconciliationReport> {
   const [assets, facilities, finance] = await Promise.all([
     api.assets.list(),
     api.mock.facilities(),
@@ -8,80 +19,65 @@ export async function getReconciliationReport() {
   ]);
 
   const tagMap = new Map<string, any>();
-
-  // Initialize from Operations
-  assets.forEach((a: any) =>
-    tagMap.set(a.asset_tag, { tag: a.asset_tag, operations: a }),
-  );
-
-  // Add Facilities
+  assets.forEach((a: any) => tagMap.set(a.asset_tag, { tag: a.asset_tag, operations: a }));
   facilities.forEach((f: any) => {
     const record = tagMap.get(f.tagged_id) || { tag: f.tagged_id };
     record.facilities = f;
     tagMap.set(f.tagged_id, record);
   });
-
-  // Add Finance
   finance.forEach((f: any) => {
     const record = tagMap.get(f.tag) || { tag: f.tag };
     record.finance = f;
     tagMap.set(f.tag, record);
   });
 
-  const report = {
+  const report: ReconciliationReport = {
+    generatedAt: new Date().toISOString(),
     summary: { critical: 0, actionNeeded: 0, review: 0, expected: 0, clean: 0 },
-    groups: {
-      actionNeeded: [] as any[],
-      review: [] as any[],
-      expected: [] as any[],
-      clean: [] as any[],
-    },
+    groups: { actionNeeded: [], review: [], expected: [], clean: [] },
   };
 
   tagMap.forEach((data, tag) => {
     const { operations, facilities, finance } = data;
+    let issue: ReconciliationIssue | null = null;
 
-    // Reconciliation Categorization Rules
-    if (operations?.state === "in_service" && !facilities) {
-      report.groups.actionNeeded.push({
-        assetTag: tag,
-        severity: "high",
-        category: "missing_rack_record",
-        title: "Rack record missing",
-        explanation: "Asset is in service but has no facilities record.",
-        suggestedAction: "Update facilities rack record.",
-      });
-      report.summary.actionNeeded++;
-    } else if (
-      operations?.state === "in_service" &&
-      finance?.status !== "capitalized"
-    ) {
-      report.groups.actionNeeded.push({
-        assetTag: tag,
-        severity: "high",
-        category: "finance_status_mismatch",
-        title: "Finance status mismatch",
-        explanation: "Asset is in service but not capitalized.",
-        suggestedAction: "Review finance record.",
-      });
-      report.summary.actionNeeded++;
-    } else if (operations?.state === "stored" && !facilities) {
-      report.groups.expected.push({
-        assetTag: tag,
-        severity: "info",
-        category: "expected_facilities_gap",
-        title: "Expected: not racked",
-        explanation: "Asset is stored, so it should not be in facilities.",
-        suggestedAction: "None",
-      });
-      report.summary.expected++;
+    if (operations?.state === 'in_service' && !facilities) {
+      issue = {
+        assetTag: tag, group: 'actionNeeded', severity: 'high', category: 'missing_facilities_rack',
+        title: 'Racked asset missing from Facilities', explanation: 'Asset in service but missing rack record.',
+        suggestedAction: 'Update Facilities rack record.', detailUrl: `/manager/assets/${tag}`, systems: { operations, facilities, finance }
+      };
+    } else if (operations?.state === 'in_service' && facilities && normalizeRack(formatOpsRack(operations)) !== normalizeRack(facilities.rack_location)) {
+      issue = {
+        assetTag: tag, group: 'actionNeeded', severity: 'high', category: 'rack_location_mismatch',
+        title: 'Operations and Facilities disagree on rack', explanation: `Ops: ${formatOpsRack(operations)}; Fac: ${facilities.rack_location}`,
+        suggestedAction: 'Physically verify rack label and update stale system.', detailUrl: `/manager/assets/${tag}`, systems: { operations, facilities, finance }
+      };
+    } else if (operations?.state === 'in_service' && finance && finance.status !== 'capitalized') {
+        issue = {
+            assetTag: tag, group: 'actionNeeded', severity: 'high', category: 'finance_status_mismatch',
+            title: 'Finance status mismatch', explanation: 'Asset is in service but not capitalized.',
+            suggestedAction: 'Ask Finance to review capitalization status.', detailUrl: `/manager/assets/${tag}`, systems: { operations, facilities, finance }
+        };
+    } else if (['received', 'stored'].includes(operations?.state) && facilities) {
+        issue = {
+            assetTag: tag, group: 'actionNeeded', severity: 'high', category: 'stale_facilities_rack',
+            title: 'Non-racked asset still appears racked', explanation: 'Asset is stored/received but still shows in facilities.',
+            suggestedAction: 'Clear Facilities rack record.', detailUrl: `/manager/assets/${tag}`, systems: { operations, facilities, finance }
+        };
+    } else if (!operations) {
+        issue = {
+            assetTag: tag, group: 'review', severity: 'medium', category: 'facilities_orphan',
+            title: 'Facilities-only asset', explanation: 'Facilities record exists but no Operations asset.',
+            suggestedAction: 'Investigate orphan.', detailUrl: `/manager/assets/${tag}`, systems: { operations, facilities, finance }
+        };
+    }
+
+    if (issue) {
+      report.groups[issue.group].push(issue);
+      report.summary[issue.group]++;
     } else {
-      report.groups.clean.push({
-        assetTag: tag,
-        severity: "info",
-        category: "clean",
-        title: "No action",
-      });
+      report.groups.clean.push({ assetTag: tag, group: 'clean', severity: 'info', category: 'clean', title: 'Clean', explanation: 'Systems agree', suggestedAction: 'None', detailUrl: `/manager/assets/${tag}`, systems: { operations, facilities, finance } });
       report.summary.clean++;
     }
   });
