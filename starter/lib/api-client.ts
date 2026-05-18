@@ -46,9 +46,11 @@ function isServer(): boolean {
 function getBaseUrl(cfg: ClientConfig): string {
   if (cfg.baseUrl) return cfg.baseUrl.replace(/\/$/, "");
   if (isServer()) {
-    return (process.env.API_BASE_URL ?? SERVER_DEFAULT_BASE).replace(/\/$/, "");
+    // Ensure we are pointing at /v1 if it's the backend
+    const base = (process.env.API_BASE_URL ?? SERVER_DEFAULT_BASE).replace(/\/$/, "");
+    return base.endsWith("/v1") ? base : `${base}/v1`;
   }
-  return ""; // Browser client uses relative paths or full absolute paths to proxy
+  return BROWSER_BASE; // Use the proxy for browser requests
 }
 
 function getToken(cfg: ClientConfig): string | null {
