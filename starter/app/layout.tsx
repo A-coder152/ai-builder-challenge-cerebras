@@ -20,13 +20,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="bg-gray-50 text-gray-900">
-        <header className="border-b bg-indigo-900 text-white shadow-sm">
+        <header className="bg-indigo-950 text-white shadow-md">
           <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-8">
-              <Link href="/" className="text-xl font-bold tracking-tight">Cerebras Tracker</Link>
-              <nav className="flex gap-6 text-sm font-medium">
-                {role === "tech" && <Link href="/tech" className="hover:text-indigo-200">Tech Workflows</Link>}
-                {role === "manager" && <Link href="/manager" className="hover:text-indigo-200">Manager Dashboard</Link>}
+              <Link href="/" className="text-xl font-bold tracking-tight text-white">Cerebras<span className="text-indigo-400">Tracker</span></Link>
+              <nav className="flex gap-6 text-sm font-medium text-indigo-100">
+                {role === "tech" && <Link href="/tech" className="hover:text-white">Tech Workflows</Link>}
+                {role === "manager" && <Link href="/manager" className="hover:text-white">Manager Dashboard</Link>}
               </nav>
             </div>
             <RoleSwitcher />
