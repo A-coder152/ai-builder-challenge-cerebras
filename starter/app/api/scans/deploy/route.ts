@@ -2,13 +2,15 @@ import { api } from "@/lib/api-client";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  const body = await request.json();
   try {
+    const body = await request.json();
     const result = await api.scans.deploy(body);
+
+    const rack_location = `${body.location.site}/${body.location.room}/${body.location.row}/${body.location.rack}/${body.location.ru}`;
 
     await api.mock.updateFacilities({
       tagged_id: body.asset_tag,
-      rack_location: `${body.location.site}/${body.location.room}/${body.location.rack}/${body.location.ru}`,
+      rack_location,
     });
 
     await api.mock.updateFinance({
@@ -18,7 +20,10 @@ export async function POST(request: Request) {
       capitalized_on: new Date().toISOString(),
     });
 
-    return NextResponse.json(result);
+    return NextResponse.json({ 
+        asset: result, 
+        sync: { facilities: { ok: true, rack_location }, finance: { ok: true, status: "capitalized" } } 
+    });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message, code: err.code, details: err.details },
