@@ -33,9 +33,11 @@ async function forward(
 
   const path = segments.join("/");
   const search = req.nextUrl.search ?? "";
+  
+  // Debug log
+  console.log(`Forwarding to: ${UPSTREAM}/${path}${search}`);
+  
   const url = `${UPSTREAM}/${path}${search}`;
-
-  console.log(`Proxying to: ${url}`);
 
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
@@ -67,16 +69,16 @@ async function forward(
 
 export async function GET(
   req: NextRequest,
-  ctx: { params: Promise<{ path: string[] }> },
+  ctx: { params: Promise<{ path?: string[] }> },
 ): Promise<Response> {
   const { path } = await ctx.params;
-  return forward(req, path);
+  return forward(req, path ?? []);
 }
 
 export async function POST(
   req: NextRequest,
-  ctx: { params: Promise<{ path: string[] }> },
+  ctx: { params: Promise<{ path?: string[] }> },
 ): Promise<Response> {
   const { path } = await ctx.params;
-  return forward(req, path);
+  return forward(req, path ?? []);
 }
