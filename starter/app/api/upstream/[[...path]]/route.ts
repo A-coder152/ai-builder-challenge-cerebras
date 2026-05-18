@@ -34,10 +34,11 @@ async function forward(
   const path = segments.join("/");
   const search = req.nextUrl.search ?? "";
   
-  // Debug log
-  console.log(`Forwarding to: ${UPSTREAM}/${path}${search}`);
-  
-  const url = `${UPSTREAM}/${path}${search}`;
+  // Ensure the path includes v1 if it's missing (Render API expects /v1/...)
+  const normalizedPath = path.startsWith("v1/") ? path : `v1/${path}`;
+  const url = `${UPSTREAM}/${normalizedPath}${search}`;
+
+  console.log(`[PROXY] Forwarding to: ${url}`);
 
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
