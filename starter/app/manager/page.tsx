@@ -39,12 +39,14 @@ const DashboardError = ({ message }: { message: string }) => (
 const ManagerDashboard: React.FC = () => {
   const [assets, setAssets] = useState<DashboardAsset[]>([]);
   const [reconcileSummary, setReconcileSummary] = useState<ReconcileSummary | null>(null);
+  const [reconcileGroups, setReconcileGroups] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Search and Filter State
+  // Search, Filter, and Sort State
   const [search, setSearch] = useState("");
   const [stateFilter, setStateFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("tag"); // "tag" | "urgent"
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -56,6 +58,7 @@ const ManagerDashboard: React.FC = () => {
         ]);
         setAssets(assetsData);
         setReconcileSummary(reconcileData.summary);
+        setReconcileGroups(reconcileData.groups);
       } catch (err) {
         setError("Failed to fetch dashboard data. Please try again later.");
       } finally {
@@ -65,9 +68,9 @@ const ManagerDashboard: React.FC = () => {
     fetchData();
   }, []);
 
-  // Filtered Assets Logic
+  // Filtered and Sorted Assets Logic
   const filteredAssets = useMemo(() => {
-    return assets.filter((a) => {
+    let result = assets.filter((a) => {
       const matchesSearch = 
         a.asset_tag.toLowerCase().includes(search.toLowerCase()) ||
         a.serial.toLowerCase().includes(search.toLowerCase()) ||
@@ -77,7 +80,21 @@ const ManagerDashboard: React.FC = () => {
       
       return matchesSearch && matchesState;
     });
-  }, [assets, search, stateFilter]);
+
+    if (sortBy === "urgent" && reconcileGroups) {
+        const getUrgency = (tag: string) => {
+            if (reconcileGroups.actionNeeded.some((i: any) => i.assetTag === tag)) return 3;
+            if (reconcileGroups.review.some((i: any) => i.assetTag === tag)) return 2;
+            if (reconcileGroups.expected.some((i: any) => i.assetTag === tag)) return 1;
+            return 0;
+        };
+        result = [...result].sort((a, b) => getUrgency(b.asset_tag) - getUrgency(a.asset_tag));
+    } else {
+        result = [...result].sort((a, b) => a.asset_tag.localeCompare(b.asset_tag));
+    }
+
+    return result;
+  }, [assets, search, stateFilter, sortBy, reconcileGroups]);
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredAssets.length / PAGE_SIZE);
@@ -162,6 +179,14 @@ const ManagerDashboard: React.FC = () => {
                 <option value="in_service">In Service</option>
                 <option value="rma_pending">RMA Pending</option>
                 <option value="disposed">Disposed</option>
+            </select>
+            <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="border border-slate-200 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white shadow-sm font-bold text-indigo-700"
+            >
+                <option value="tag">Sort: Asset Tag</option>
+                <option value="urgent">Sort: Most Urgent</option>
             </select>
             <Link
               href="/manager/reconcile"
