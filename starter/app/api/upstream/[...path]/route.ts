@@ -7,10 +7,6 @@ import { NextRequest, NextResponse } from "next/server";
 // with Authorization set. Headers, query strings, request bodies, and the
 // upstream status code are passed through unchanged.
 
-const UPSTREAM = (
-  process.env.API_BASE_URL ?? "http://localhost:8080/v1"
-).replace(/\/$/, "");
-
 function missingToken(): NextResponse {
   return NextResponse.json(
     {
@@ -31,9 +27,15 @@ async function forward(
   const token = process.env.API_TOKEN;
   if (!token) return missingToken();
 
+  const UPSTREAM = (
+    process.env.API_BASE_URL ?? "http://localhost:8080/v1"
+  ).replace(/\/$/, "");
+
   const path = segments.join("/");
   const search = req.nextUrl.search ?? "";
   const url = `${UPSTREAM}/${path}${search}`;
+
+  console.log(`Proxying to: ${url}`);
 
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,

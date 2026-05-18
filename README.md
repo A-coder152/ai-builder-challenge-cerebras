@@ -3,6 +3,14 @@
 ## Deployed app
 https://ai-builder-challenge-cerebras-start-teal.vercel.app
 
+## Deployment configuration
+You **must** configure the following environment variables in your Vercel project settings for the frontend to communicate with your backend:
+
+- `API_BASE_URL`: The full URL of your deployed Render backend (e.g., `https://your-api.onrender.com/v1`).
+- `API_TOKEN`: A secure bearer token to authenticate your frontend's requests to the backend.
+
+Failure to set these will cause the frontend to attempt to connect to `localhost`, which will fail.
+
 ## Reviewer quick path
 
 1. Open `/dev/barcodes` and print the test labels.
