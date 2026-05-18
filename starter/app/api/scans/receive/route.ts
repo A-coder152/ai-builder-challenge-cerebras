@@ -1,16 +1,16 @@
 import { api } from "@/lib/api-client";
 import { NextResponse } from "next/server";
+import { scanErrorResponse, validateAssetTag } from "@/lib/scan-errors";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    // Validate input here as needed
+    validateAssetTag(body.asset_tag);
+    if (!body.user_id) throw { status: 422, code: 'missing_user', message: 'User ID is required.' };
+
     const result = await api.scans.receive(body);
     return NextResponse.json(result);
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message, code: err.code, details: err.details },
-      { status: err.status || 500 },
-    );
+    return scanErrorResponse(err);
   }
 }
