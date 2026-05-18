@@ -25,7 +25,7 @@ describe("reconciliation logic", () => {
     const report = await getReconciliationReport();
 
     expect(report.groups.actionNeeded).toHaveLength(1);
-    expect(report.groups.actionNeeded[0].category).toBe('missing_facilities_rack');
+    expect(report.groups.actionNeeded?.[0]?.category).toBe('missing_facilities_rack');
     });
 
     it('categorizes stored assets as expected', async () => {
@@ -36,9 +36,9 @@ describe("reconciliation logic", () => {
     (apiClient.api.mock.finance as any).mockResolvedValue([]);
 
     const report = await getReconciliationReport();
-    
+
     expect(report.groups.expected).toHaveLength(1);
-    expect(report.groups.expected[0].category).toBe('expected_non_racked');
-  });
-});
+    expect(report.groups.expected?.[0]?.category).toBe('expected_non_racked');
+    });
+    });
 
