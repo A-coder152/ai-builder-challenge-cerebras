@@ -48,7 +48,7 @@ function getBaseUrl(cfg: ClientConfig): string {
   if (isServer()) {
     return (process.env.API_BASE_URL ?? SERVER_DEFAULT_BASE).replace(/\/$/, "");
   }
-  return BROWSER_BASE;
+  return ""; // Browser client uses relative paths or full absolute paths to proxy
 }
 
 function getToken(cfg: ClientConfig): string | null {
