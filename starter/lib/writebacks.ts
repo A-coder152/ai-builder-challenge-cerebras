@@ -30,13 +30,18 @@ export async function receiveWithWritebacks(input: ReceiveScanInput): Promise<Sc
 export async function deployWithWritebacks(input: DeployScanInput): Promise<ScanRouteResult<Asset>> {
   const asset = await api.scans.deploy(input);
   const rackLocation = `${input.location.site}/${input.location.room}/${input.location.row}/${input.location.rack}/${input.location.ru}`;
-  await api.mock.updateFacilities({ tagged_id: input.asset_tag, rack_location: rackLocation });
-  await api.mock.updateFinance({
-    tag: input.asset_tag,
-    site: input.location.site,
-    status: "capitalized",
-    capitalized_on: new Date().toISOString(),
-  });
+
+  // Use allSettled so one failure doesn't ruin the whole request
+  const [facilitiesResult, financeResult] = await Promise.allSettled([
+    api.mock.updateFacilities({ tagged_id: input.asset_tag, rack_location: rackLocation }),
+    api.mock.updateFinance({
+      tag: input.asset_tag,
+      site: input.location.site,
+      status: "capitalized",
+      capitalized_on: new Date().toISOString(),
+    }),
+  ]);
+
   return {
     ok: true,
     workflow: "deploy",
@@ -44,8 +49,14 @@ export async function deployWithWritebacks(input: DeployScanInput): Promise<Scan
     message: `Deployed ${asset.asset_tag}.`,
     sync: {
       operations: ok("updated", "Operations moved the asset into service."),
-      facilities: ok("updated", `Facilities rack set to ${rackLocation}.`),
-      finance: ok("updated", "Finance marked the asset capitalized."),
+      facilities:
+        facilitiesResult.status === "fulfilled"
+          ? ok("updated", `Facilities rack set to ${rackLocation}.`)
+          : failed(facilitiesResult.reason),
+      finance:
+        financeResult.status === "fulfilled"
+          ? ok("updated", "Finance marked the asset capitalized.")
+          : failed(financeResult.reason),
     },
   };
 }

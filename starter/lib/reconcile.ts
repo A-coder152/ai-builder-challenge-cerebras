@@ -20,14 +20,18 @@ export async function getReconciliationReport(): Promise<ReconciliationReport> {
 
   const tagMap = new Map<string, any>();
   assets.forEach((a: any) => tagMap.set(a.asset_tag, { tag: a.asset_tag, operations: a }));
+  
   facilities.forEach((f: any) => {
-    const record = tagMap.get(f.tagged_id) || { tag: f.tagged_id };
-    record.facilities = f;
+    const record = tagMap.get(f.tagged_id) || { tag: f.tagged_id, facilitiesRows: [] };
+    if (!record.facilitiesRows) record.facilitiesRows = [];
+    record.facilitiesRows.push(f);
     tagMap.set(f.tagged_id, record);
   });
+  
   finance.forEach((f: any) => {
-    const record = tagMap.get(f.tag) || { tag: f.tag };
-    record.finance = f;
+    const record = tagMap.get(f.tag) || { tag: f.tag, financeRows: [] };
+    if (!record.financeRows) record.financeRows = [];
+    record.financeRows.push(f);
     tagMap.set(f.tag, record);
   });
 
@@ -38,10 +42,18 @@ export async function getReconciliationReport(): Promise<ReconciliationReport> {
   };
 
   tagMap.forEach((data, tag) => {
-    const { operations, facilities, finance } = data;
+    const { operations, facilitiesRows, financeRows } = data;
+    const facilities = facilitiesRows?.[0];
+    const finance = financeRows?.[0];
     let issue: ReconciliationIssue | null = null;
 
-    if (operations?.state === 'in_service' && !facilities) {
+    if ((facilitiesRows?.length > 1) || (financeRows?.length > 1)) {
+        issue = {
+            assetTag: tag, group: 'actionNeeded', severity: 'critical', category: 'rack_location_mismatch',
+            title: 'Duplicate system records', explanation: 'Multiple records found in Facilities or Finance.',
+            suggestedAction: 'Clean up data source.', detailUrl: `/manager/assets/${tag}`, systems: { operations, facilities, finance }
+        };
+    } else if (operations?.state === 'in_service' && !facilities) {
       issue = {
         assetTag: tag, group: 'actionNeeded', severity: 'high', category: 'missing_facilities_rack',
         title: 'Racked asset missing from Facilities', explanation: 'Asset in service but missing rack record.',
@@ -71,7 +83,7 @@ export async function getReconciliationReport(): Promise<ReconciliationReport> {
             title: 'Expected: not racked', explanation: 'Asset is stored/received and not in facilities.',
             suggestedAction: 'None', detailUrl: `/manager/assets/${tag}`, systems: { operations, facilities, finance }
         };
-    } else if (!operations) {
+    } else if (!operations && facilities) {
         issue = {
             assetTag: tag, group: 'review', severity: 'medium', category: 'facilities_orphan',
             title: 'Facilities-only asset', explanation: 'Facilities record exists but no Operations asset.',
