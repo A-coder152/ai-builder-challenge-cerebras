@@ -1,7 +1,7 @@
 # Asset Tracking Challenge - A-coder152 (Abdullah Salim)
 
 ## Deployed app
-https://ai-builder-challenge-cerebras-start-teal.vercel.app
+https://ai-builder-challenge-cerebras-start.vercel.app
 
 ## Deployment configuration
 You **must** configure the following environment variables in your Vercel project settings for the frontend to communicate with your backend:
@@ -59,7 +59,7 @@ The `/dev/barcodes` page generates scannable labels for all test cases, includin
 
 ## Three calls I nearly made the other way
 
-1. **Server Orchestration vs. Generic Sync**: I initially considered a generic `/api/sync-mocks` endpoint. I replaced it with scan-specific handlers because each scan has distinct downstream writeback rules (e.g., deploy writes both, store only de-racks for in-service assets).
+1. **Server Orchestration vs. Generic Sync**: I initially considered a generic `/api/sync-mocks` endpoint. I replaced it with scan-specific handlers (/api/scans/*) because each scan has distinct downstream writeback rules (e.g., deploy writes both, store only de-racks for in-service assets).
 2. **Exception-First Dashboard**: I prioritized exceptions and recent movements because a manager needs to know "what needs action?" in seconds, not sort through a 1,000-asset list.
 3. **Scan UX**: I kept focused inputs as the default to support USB/Bluetooth scanners, while adding camera scanning as a native secondary path for mobile workflows.
 
