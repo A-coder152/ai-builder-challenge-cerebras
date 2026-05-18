@@ -1,64 +1,35 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import JsBarcode from "jsbarcode";
+import React, { useEffect, useRef } from 'react';
+import JsBarcode from 'jsbarcode';
 
-interface BarcodeItem {
-  label: string;
-  value: string;
-}
-
-const barcodeData: BarcodeItem[] = [
-  { label: "Asset C0000001 (Received)", value: "C0000001" },
-  { label: "Asset C0000002 (In Service)", value: "C0000002" },
-  { label: "Asset C0000003 (Stored)", value: "C0000003" },
-  { label: "Asset C0000004 (Drifted - Facilities)", value: "C0000004" },
-  { label: "Asset C0000005 (Ghost - Finance)", value: "C0000005" },
-  { label: "Location Site A / Room 101", value: "LOC-SITEA-R101" },
-  { label: "Location Site B / Room 202", value: "LOC-SITEB-R202" },
-  { label: "Tech Jane Doe", value: "tech-jane" },
-  { label: "Manager Paul Smith", value: "manager-paul" },
-];
-
-const BarcodeGeneratorPage: React.FC = () => {
-  const barcodeRefs = useRef<(SVGSVGElement | null)[]>([]);
-
+const BarcodeCard = ({ label, value, description }: { label: string, value: string, description: string }) => {
+  const ref = useRef<SVGSVGElement>(null);
   useEffect(() => {
-    barcodeData.forEach((item, index) => {
-      if (barcodeRefs.current[index]) {
-        JsBarcode(barcodeRefs.current[index]!, item.value, {
-          format: "CODE128",
-          displayValue: true,
-          height: 50,
-          width: 2,
-          margin: 10,
-        });
-      }
-    });
-  }, []);
-
+    if (ref.current) JsBarcode(ref.current, value, { format: "CODE128", displayValue: true, height: 40 });
+  }, [value]);
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Barcode Generator</h1>
-      <p className="mb-6">
-        Use these barcodes for testing the scan workflows. Print this page for
-        physical scanning.
-      </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {barcodeData.map((item, index) => (
-          <div key={index} className="border p-4 rounded-lg shadow-sm">
-            <h2 className="text-lg font-semibold mb-2">{item.label}</h2>
-            <svg
-              ref={(el: SVGSVGElement | null) => {
-                if (el) barcodeRefs.current[index] = el;
-              }}
-            ></svg>
-            <p className="text-sm font-mono mt-2">{item.value}</p>
-          </div>
-        ))}
-      </div>
+    <div className="barcode-card border p-4 rounded-lg bg-white shadow-sm flex flex-col items-center">
+      <h3 className="font-bold text-sm mb-1">{label}</h3>
+      <svg ref={ref}></svg>
+      <p className="text-xs text-gray-500 mt-2 text-center">{description}</p>
     </div>
   );
 };
+
+const BarcodeGeneratorPage = () => (
+  <div className="container mx-auto p-6 max-w-4xl">
+    <h1 className="text-2xl font-bold mb-6">Test Harness: Barcodes</h1>
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <BarcodeCard label="Asset" value="C0009001" description="Happy path test asset" />
+      <BarcodeCard label="Site" value="SFO" description="Deploy site" />
+      <BarcodeCard label="Room" value="R201" description="Deploy room" />
+      <BarcodeCard label="Row" value="A" description="Deploy row" />
+      <BarcodeCard label="Rack" value="K1" description="Deploy rack" />
+      <BarcodeCard label="RU" value="10" description="Deploy RU" />
+      <BarcodeCard label="Full Rack" value="rack:SFO/R201/A/K1/10" description="Parseable rack location" />
+    </div>
+  </div>
+);
 
 export default BarcodeGeneratorPage;
